@@ -1,6 +1,6 @@
 {
-  "name": "himenu",
-  "short_name": "hiMenu",
+  "name": "hiStore",
+  "short_name": "hiMenustore",
   "icons": [
     {
       "src": "/static/img/icons/himenu.png",
@@ -15,6 +15,6 @@
   ],
   "start_url": "/index.html",
   "display": "standalone",
-  "background_color": "#000000",
-  "theme_color": "#ffbe55"
+  "background_color": "#fff",
+  "theme_color": "#ee8900"
 }

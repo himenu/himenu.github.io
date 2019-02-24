@@ -70,6 +70,7 @@ import { mapState } from 'vuex'
 import { mapWaitingActions, mapWaitingGetters } from 'vue-wait'
 
 export default {
+
     computed: {
    ...mapGetters([
            'Load_currentUser'
@@ -96,7 +97,14 @@ export default {
      filteredList() {
        let vm = this
        let user = firebase.auth().currentUser;
-      return this.$root.menus.filter(menu => {
+      let menus = this.$root.menus
+       if (navigator.onLine) {
+          this.saveMenusToCache()
+        } else {
+          menus = JSON.parse(localStorage.getItem('menus'))
+        }
+
+      return menus.filter(menu => {
         // console.log(menu.uid  );
         // console.log(user);
         
@@ -114,11 +122,22 @@ export default {
     
     },
    mounted(){
-      
+      this.saveMenusToCache()
     },
     methods: {
       displayCategories(key){
         this.$router.push('/menu/'+key+'/categories')
+      },
+      saveMenusToCache () {
+        this.$root.$firebaseRefs.menus.orderByChild('created_at').once('value', (snap) => {
+          let cachedMenus = []
+          snap.forEach((menusnap) => {
+            let cachedMenu = menusnap.val()
+            cachedMenu['.key'] = menusnap.key
+            cachedMenus.push(cachedMenu)
+          })
+          localStorage.setItem('menus', JSON.stringify(cachedMenus))
+        })
       },
       compileJson(categories){
         let category = ""
