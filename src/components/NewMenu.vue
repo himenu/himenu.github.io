@@ -15,7 +15,9 @@
       </v-toolbar>
       <v-card :raised="false" style="box-shadow: none; padding: 40px">
         <div></div>
-  
+  <!-- <pre>
+    {{ Load_currentUser }}
+  </pre> -->
         <v-form ref="form" v-model="valid" lazy-validation>
           <v-layout row wrap style="padding-top: 20px">
             <v-flex xs12 sm6 md6>
@@ -184,6 +186,11 @@ import QrcodeVue from "qrcode.vue";
 // Import FilePond styles
 import "filepond/dist/filepond.min.css";
 const axios = require('axios');
+ import { find } from 'lodash'
+ import firebase from '../service/firebase'
+import { mapGetters } from 'vuex'
+import { mapState } from 'vuex'
+import { mapWaitingActions, mapWaitingGetters } from 'vue-wait'
 
 // Import FilePond plugins
 // Please note that you need to install these plugins separately
@@ -206,6 +213,7 @@ export default {
     FilePond,
     QrcodeVue
   },
+  
   watch: {
     dialog (val) {
         if (!val) return
@@ -215,19 +223,44 @@ export default {
     menuName: function(val) {
       console.log(val);
       if (val != "" && val.length < 2) {
-        let random = Math.floor(Math.random() * 899 + 100);
-        this.menuForm.menuCode = val.charAt(0).toUpperCase() + random;
         
-        console.log(this.menuForm.menuCode);
-        this.value += this.menuForm.menuCode;
-        var image = document
-          .getElementById("myCanvas")
-          .toDataURL("image/png")
-          .replace("image/png", "image/octet-stream");
-        console.log(image);
-        this.dataImage = image;
+        var countdown = function(value,vm) {
+            let random = Math.floor(Math.random() * 899 + 100);
+            let code = val.charAt(0).toUpperCase() + random;
+              if (value == 1) {
+                 let menu = firebase.database.ref('menus/' + code);
+                    menu.on("value", function(snapshot, prevChildKey) {
+                      var newMenu = snapshot.val();
+                      let found = false;
+                      // vm.menu = newMenu
+                      console.log(newMenu);
+                      console.log(code)
+                      
+                      if(newMenu == null){
+                        value = code
+                      }
+                    
+                      
+                    });
+                      return countdown(value,vm);
+
+              } else {
+                  return value;
+              }
+          };
+        
+        console.log("===============");
+        
+        console.log();
+        this.menuForm.menuCode = countdown(1,this)
+
+        this.value = this.menuForm.menuCode;
+        console.log(this.value);
+        
+        
       }
     }
+
   },
   data: () => ({
     value: "https://example.com/",
@@ -270,6 +303,10 @@ export default {
     checkbox: false
   }),
   computed: {
+     ...mapGetters([
+           'Load_currentUser'
+      // ...
+         ]),
     clUrl: function() {
       return `https://api.cloudinary.com/v1_1/${
         this.cloudinary.cloudName
@@ -279,6 +316,12 @@ export default {
   methods: {
     validate() {
       if (this.$refs.form.validate()) {
+        var image = document
+          .getElementById("myCanvas")
+          .toDataURL("image/png")
+          .replace("image/png", "image/octet-stream");
+        // console.log(image);
+        this.dataImage = image;
         //   this.snackbar = true
         console.log(this.menuForm);
          const formData = new FormData()
@@ -294,8 +337,8 @@ export default {
       axios.post(this.clUrl, formData).then(res => {
         console.log(res);
         vm.menuForm.menuQRcode = res.data.url
-        vm.$root.$firebaseRefs.menus.push(
-            {
+       firebase.database.ref('menus').child(vm.menuForm.menuCode).set(
+         {
               'name': vm.menuName,
               'code': vm.menuForm.menuCode,
               'slogan': vm.menuForm.menuSlogan,
@@ -306,8 +349,25 @@ export default {
               'thumb_logo': vm.menuForm.thumb_menuLogoUrl,
               'thumb_cover': vm.menuForm.thumb_menuCoverUrl,
               'created_at': -1 * new Date().getTime(),
-            })
-            .then(this.$router.push('/'))
+              "uid": vm.Load_currentUser.uid
+            }
+       ).then(this.$router.push('/'))
+        //     this.dialog = false
+
+        // vm.$root.$firebaseRefs.menus.push(
+        //     {
+        //       'name': vm.menuName,
+        //       'code': vm.menuForm.menuCode,
+        //       'slogan': vm.menuForm.menuSlogan,
+        //       'location': vm.menuForm.menuLocation,
+        //       'QRcode': vm.menuForm.menuQRcode,
+        //       'logoUrl': vm.menuForm.menuLogoUrl,
+        //       'coverPhoto': vm.menuForm.menuCoverUrl,
+        //       'thumb_logo': vm.menuForm.thumb_menuLogoUrl,
+        //       'thumb_cover': vm.menuForm.thumb_menuCoverUrl,
+        //       'created_at': -1 * new Date().getTime(),
+        //     })
+        //     .then(this.$router.push('/'))
 
       })
       }
@@ -412,10 +472,7 @@ export default {
 .v-image__image .v-image__image--cover {
   background-size: contain !important;
 }
-.v-image__image--cover {
-  background-size: contain;
-  top: 10px;
-}
+
 .v-card--reveal {
   align-items: center;
   bottom: 0;

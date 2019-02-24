@@ -2,20 +2,33 @@
 <v-layout row style="background: #f2f2f2">
     <v-flex xs12 sm6 offset-sm3>
       <v-card style="box-shadow: none;">
+        
         <v-img
         v-if="menu"
           :src="menu.coverPhoto"
+          :lazy-src="`https://picsum.photos/10/6?image=${1 * 5 + 10}`"
           height="300px"
         >
+         <v-layout
+                    slot="placeholder"
+                    fill-height
+                    align-center
+                    justify-center
+                    ma-0
+                  >
+                    <v-progress-circular indeterminate color="grey lighten-5"></v-progress-circular>
+                  </v-layout>
           <v-layout
             column
             fill-height
           >
-            <v-card-title>
-              <v-btn dark icon @click="$router.go(-1)">
-                <v-icon>chevron_left</v-icon>
+            <v-card-title >
+              <v-btn dark fab color="primary" @click="$router.push('/list')">
+                <v-icon dark="">chevron_left</v-icon>
               </v-btn>
-
+ <!-- <v-btn fab dark large color="cyan">
+      <v-icon dark>edit</v-icon>
+    </v-btn> -->
               <v-spacer></v-spacer>
 
               <v-btn dark icon class="mr-3">
@@ -29,10 +42,12 @@
 
             <v-spacer></v-spacer>
 
-            <v-card-title class="white--text pl-5 pt-5" style="text-align: center">
-              <div class="display-1 pl-5 pt-5">{{ menu.name }}</div>
-              <!-- <p style="padding-left: 48px">{{ menu.slogan }}</p> -->
-            </v-card-title>
+            <v-card-title primary-title style="background: rgba(0, 0, 0, 0.6); padding: 25px; line-height: 3">
+          <div >
+            <div class="title white--text">{{ menu.name }}</div>
+            <span class="white--text">{{ menu.slogan }}</span>
+          </div>
+        </v-card-title>
           </v-layout>
         </v-img>
   <v-card :raised="false" style="box-shadow: none; border-radius: 20px; padding: 40px">
@@ -41,10 +56,12 @@
         <v-list two-line subheader  v-if="categories">
 
           <v-subheader inset>All Categories</v-subheader>
-          <v-list-tile
-            v-for="category in categories"
-            :key="category.name"
+          <div  v-for="category in categories"
+            :key="category.name">
+      <v-list-tile
+           
             @click="$router.push(category.name)"
+            v-if="category.hasOwnProperty('name')"
             avatar
                v-ripple
           >
@@ -62,6 +79,9 @@
               </v-btn>
             </v-list-tile-action>
           </v-list-tile>
+
+          </div>
+    
         </v-list>
          
          <v-btn
@@ -172,6 +192,13 @@ export default {
         console.log(newCategory);
         
       });
+      //  categories.on("child_added", function(snapshot, prevChildKey) {
+      //   // vm.menu = newPost
+      //    var newCategory = snapshot.val();
+      //   vm.categories = newCategory
+      //   console.log(newCategory);
+        
+      // });
     },
     methods: {
       addCategories(){

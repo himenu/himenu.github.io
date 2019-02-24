@@ -1,35 +1,46 @@
 <template>
      <v-layout row>
     <v-flex xs12 sm6 offset-sm3>
-      <v-card :raised="false" style="box-shadow: none; border-radius: 20px; padding: 40px">
+      <v-card :raised="false" style="box-shadow: none; border-radius: 20px; height: 88vh; padding: 15px">
 
         <v-list two-line subheader>
 
           <v-subheader inset>All Menus</v-subheader>
             <!-- v-for="item in items2" -->
-
-          <v-list-tile
-            v-for="(menu) in this.$root.menus" class="image-card"
-            :key="menu.code"
+            <!-- <pre>
+              {{ filteredList }}
+            </pre> -->
+<div  v-for="(menu, index) in filteredList" class="image-card"
+            :key="index">
+ <v-list-tile
+          style="background: #f2f2f2; border-radius: 2px; margin-top: 5px;"
+           
             @click="displayCategories(menu['.key'])"
             avatar
             v-ripple
+            v-if="menu.hasOwnProperty('name')"
           >
-            <v-list-tile-avatar>
-                <img :src="menu.thumb_logo">
+            <v-list-tile-avatar tile>
+                <img :src="menu.thumb_logo" :lazy-src="`https://picsum.photos/10/6?image=${1 * 5 + 10}`" >
+                
               </v-list-tile-avatar>
 
             <v-list-tile-content>
               <v-list-tile-title>{{ menu.name }}</v-list-tile-title>
-              <v-list-tile-sub-title>{{ menu.slogan }}</v-list-tile-sub-title>
+              <v-list-tile-sub-title v-if="menu.hasOwnProperty('categories')" v-text="compileJson(menu.categories)">
+
+
+              </v-list-tile-sub-title>
             </v-list-tile-content>
 
             <v-list-tile-action>
               <v-btn icon ripple>
-                <v-icon color="grey lighten-1">info</v-icon>
+                <v-icon color="grey lighten-1">chevron_right</v-icon>
               </v-btn>
             </v-list-tile-action>
           </v-list-tile>
+</div>
+         
         </v-list>
    
          <v-btn
@@ -50,10 +61,25 @@
 </template>
 
 <script>
+import _ from 'lodash'
+ import firebase from 'firebase';
+
+import { find } from 'lodash'
+import { mapGetters } from 'vuex'
+import { mapState } from 'vuex'
+import { mapWaitingActions, mapWaitingGetters } from 'vue-wait'
+
 export default {
-  
+    computed: {
+   ...mapGetters([
+           'Load_currentUser'
+      // ...
+         ]),
+
+  },
     data () {
       return {
+        uid: '',
         items: [
           { icon: 'folder', iconClass: 'grey lighten-1 white--text', title: 'Photos', subtitle: 'Jan 9, 2014' },
           { icon: 'folder', iconClass: 'grey lighten-1 white--text', title: 'Recipes', subtitle: 'Jan 17, 2014' },
@@ -65,9 +91,42 @@ export default {
         ]
       }
     },
+   
+    computed: {
+     filteredList() {
+       let vm = this
+       let user = firebase.auth().currentUser;
+      return this.$root.menus.filter(menu => {
+        // console.log(menu.uid  );
+        // console.log(user);
+        
+
+        // return true
+        
+        if (menu.hasOwnProperty('uid')) {
+          return menu.uid === user.uid
+        }else{
+          return false
+        }
+      })
+    }
+
+    
+    },
+   mounted(){
+      
+    },
     methods: {
       displayCategories(key){
         this.$router.push('/menu/'+key+'/categories')
+      },
+      compileJson(categories){
+        let category = ""
+        _.forIn(categories, function(value, key) {
+          // console.log(key, value);
+          category += key+ " . "
+      });
+        return category
       }
     }
   }

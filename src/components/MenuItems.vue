@@ -1,16 +1,19 @@
 <template>
      <v-layout row>
     <v-flex xs12 sm6 offset-sm3>
-      <v-card :raised="false" style="box-shadow: none; border-radius: 20px; padding: 40px">
+      <v-card :raised="false" style="box-shadow: none; background: #f2f2f2; box-shadow: none;  border-radius: 20px; padding: 20px">
 
         <v-layout row wrap>
-        
-          <v-flex xs12>
-            <v-card style="box-shadow: none">
-              <v-layout>
+          <!-- <pre>
+        {{ items }}
+
+          </pre> -->
+          <v-flex xs12 v-for="(item, key) in items" :key="item.name" style="" >
+            <v-card v-if="item.hasOwnProperty('name')" @click="$router.push('/menu/'+$route.params.menu_id+'/'+$route.params.cat_id+'/view/'+key)" v-ripple style="box-shadow: none; border-radius: 10px; margin-top: 5px; padding: 15px">
+              <v-layout >
                 <v-flex xs3>
                   <v-img
-                    src="https://images.unsplash.com/photo-1539840093138-9b3e230e5206?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=634&q=80"
+                    :src="item.photo_url"
                     height="125px"
                     contain
                   ></v-img>
@@ -18,9 +21,9 @@
                 <v-flex xs9>
                   <v-card-title primary-title>
                     <div>
-                      <div class="headline">PANCAKE</div>
-                      <div>Our world famous buttermilk pancake stacks served with fresh whipped cream, dusted with icing sugar, a scoop of ice cream or fresh fruit salad</div>
-                      <div class="headline"><b>Kshs. 700</b></div>
+                      <div class="headline">{{ item.name }}</div>
+                      <div>{{ item.description }}</div>
+                      <div class="headline"><b>Kes {{ item.price }}/=</b></div>
 
                     </div>
                   </v-card-title>
@@ -30,30 +33,6 @@
             </v-card>
           </v-flex>
           
-          <v-flex xs12>
-            <v-card style="box-shadow: none">
-              <v-layout>
-                <v-flex xs3>
-                  <v-img
-                    src="https://images.unsplash.com/photo-1539840093138-9b3e230e5206?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=634&q=80"
-                    height="125px"
-                    contain
-                  ></v-img>
-                </v-flex>
-                <v-flex xs9>
-                  <v-card-title primary-title>
-                    <div>
-                      <div class="headline">PANCAKE</div>
-                      <div>Our world famous buttermilk pancake stacks served with fresh whipped cream, dusted with icing sugar, a scoop of ice cream or fresh fruit salad</div>
-                      <div class="headline"><b>Kshs. 700</b></div>
-
-                    </div>
-                  </v-card-title>
-                </v-flex>
-                
-              </v-layout>
-            </v-card>
-          </v-flex>
 
         
         </v-layout>
@@ -66,7 +45,10 @@
               right
               color="pink"
               style="margin-top: 20px"
+            
+              @click="$router.push('newitem')"
             >
+              <!-- @click="addMenuItem" -->
               <v-icon>add</v-icon>
             </v-btn>
       </v-card>
@@ -75,18 +57,41 @@
 </template>
 
 <script> 
+ import { find } from 'lodash'
+ import firebase from '../service/firebase'
 export default {
     data () {
       return {
-        items: [
-          { header: 'Today' },
-          {
-            avatar: 'https://cdn.vuetifyjs.com/images/lists/1.jpg',
-            title: 'THE CLUB OMELETTE',
-            subtitle: "A three-egg omelette made with sautéed mushroom, baby spinach & gouda cheese"
-          },
+        store_items: null,
+        items:[]
+      }
+    },
+     computed: {
+     activeItems: function() {
+       return this.items.filter(function(u) {
+         return u.hasOwnProperty('name')
+     })
+     }
+   },
+    mounted(){
+      let items = firebase.database.ref('menus').child(this.$route.params.menu_id).child('categories').child(this.$route.params.cat_id+"/")
+      // console.log(obj);
+      
+      let vm = this
+        items.on("value", function(snapshot, prevChildKey) {
+                // vm.menu = newPost
+                var curr_items = snapshot.val();
+                vm.items = curr_items
+                // vm.store_items = curr_items
+                console.log(curr_items);
+                
+              });
+    },
+    methods:{
+      addMenuItem(){
+        let random = Math.floor(Math.random() * 100 + 1);
+        let price = random * 10;
          
-        ]
       }
     }
   }

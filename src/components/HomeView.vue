@@ -298,9 +298,7 @@ header span {
   padding-top: 16px;
 }
 
-* {
-  font-family: cursive;
-}
+
 .item {
   /* min-height: 50px; */
   min-width: 80px;

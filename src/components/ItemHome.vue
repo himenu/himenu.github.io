@@ -2,11 +2,11 @@
   <v-layout row>
     <v-flex xs12 sm6 offset-sm3>
       <v-toolbar card prominent>
-        <v-btn icon color="cyan" flat @click="$router.go(-1)">
+        <!-- <v-btn icon color="cyan" flat @click="$router.go(-1)">
           <v-icon>arrow_back</v-icon>
-        </v-btn>
-        <v-toolbar-title class="body-2 grey--text">Add New Meal</v-toolbar-title>
-
+        </v-btn> -->
+        <v-toolbar-title class="body-2 grey--text">{{ itemForm.itemName }}</v-toolbar-title>
+        <!-- {{ item }} -->
         <v-spacer></v-spacer>
 
         <!-- <v-btn icon class="hidden-xs-only">
@@ -67,13 +67,13 @@
             </v-flex>
           </v-layout>
 
-
+<!-- 
           <v-btn :disabled="!valid && dialog"  color="success" @click="validate"  :loading="dialog">Add new Meal
 <v-icon left dark>cloud_upload</v-icon>
 
           </v-btn>
 
-          <v-btn color="error" @click="reset">Reset</v-btn>
+          <v-btn color="error" @click="reset">Reset</v-btn> -->
  <v-dialog
       v-model="dialog"
       hide-overlay
@@ -143,11 +143,12 @@ export default {
     
   },
   data: () => ({
+      item: null,
     valid: true,
     sendingFirebase: false,
     dialog: false,
     itemForm: {
-        itemName: '',
+        itemName: 'Item',
         itemDescription: "",
         photo_url: "http://res.cloudinary.com/micqual/image/upload/v1550605880/r9qzym7evq7e2qw2odqh.png",
         thumb_url: "http://res.cloudinary.com/micqual/image/upload/w_200,h_200,c_crop,g_face,r_max/v1550605880/r9qzym7evq7e2qw2odqh.png",
@@ -172,6 +173,34 @@ export default {
       }/upload`;
     }
   },
+  mounted () {
+     let item = firebase.database.ref('menus/' + this.$route.params.menu_id).child('categories').child(this.$route.params.cat_id).child(this.$route.params.item_id)
+      let vm = this
+       item.on("child_added", function(snapshot, prevChildKey) {
+        // vm.menu = newPost
+         var item = snapshot.val();
+        // vm.item = item
+             vm.itemForm.photo_url = item.photo_url
+              vm.itemForm.thumb_url = item.thumb_url
+              vm.itemForm.itemName = item.name
+              vm.itemForm.description = item.description
+              vm.itemForm.itemPrice = item.price
+            //   vm.myFiles.push(item.photo_url)
+        
+      });
+       item.on("value", function(snapshot, prevChildKey) {
+        // vm.menu = newPost
+         var item = snapshot.val();
+        // vm.item = item
+              vm.itemForm.photo_url = item.photo_url
+              vm.itemForm.thumb_url = item.thumb_url
+              vm.itemForm.itemName = item.name
+              vm.itemForm.description = item.description
+              vm.itemForm.itemPrice = item.price
+        console.log(item);
+        
+      });
+    },
   methods: {
     validate() {
       if (this.$refs.form.validate()) {
@@ -288,8 +317,8 @@ export default {
   background-size: contain !important;
 }
 .v-image__image--cover {
-  background-size: contain;
-  top: 10px;
+  /* background-size: contain; */
+  /* top: 10px; */
 }
 .v-card--reveal {
   align-items: center;

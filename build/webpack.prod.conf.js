@@ -14,6 +14,7 @@ const OptimizeCSSPlugin = require('optimize-css-assets-webpack-plugin')
 const SWPrecacheWebpackPlugin = require('sw-precache-webpack-plugin')
 const loadMinified = require('./load-minified')
 
+
 const env = config.build.env
 
 const webpackConfig = merge(baseWebpackConfig, {
@@ -51,6 +52,7 @@ const webpackConfig = merge(baseWebpackConfig, {
         safe: true
       }
     }),
+    
     // generate dist index.html with correct asset hash for caching.
     // you can customize output by editing /index.html
     // see https://github.com/ampedandwired/html-webpack-plugin
