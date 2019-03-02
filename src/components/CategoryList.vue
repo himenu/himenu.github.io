@@ -208,6 +208,7 @@ export default {
               name: this.categoryName,
             })
             this.dialog = false
+            this.categoryName = ''
            }
       }
     }

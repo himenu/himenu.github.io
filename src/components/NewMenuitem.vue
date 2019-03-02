@@ -180,7 +180,7 @@ export default {
          {
               'name': this.itemForm.itemName,
               'description': this.itemForm.itemDescription,
-              'price':this.itemForm.itemPrice,
+              'price': parseFloat(this.itemForm.itemPrice),
               'thumb_url': this.itemForm.thumb_url,
               'photo_url': this.itemForm.photo_url,
               'quantity': 1,
@@ -286,10 +286,6 @@ export default {
 <style>
 .v-image__image .v-image__image--cover {
   background-size: contain !important;
-}
-.v-image__image--cover {
-  background-size: contain;
-  top: 10px;
 }
 .v-card--reveal {
   align-items: center;

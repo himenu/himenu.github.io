@@ -1,6 +1,6 @@
 {
   "name": "hiStore",
-  "short_name": "hiMenustore",
+  "short_name": "hiStore",
   "icons": [
     {
       "src": "/static/img/icons/himenu.png",

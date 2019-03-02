@@ -31,7 +31,31 @@
               ></v-text-field>
             </v-flex>
             <v-flex xs12 sm6 md6>
-              <v-text-field
+                <v-toolbar
+      dense
+    >
+        <div class="pac-card" id="pac-card">
+  
+                    <div id="pac-container">
+  
+                     
+                        <!-- <input id="pac-input" class="form-control" ref="source" type="text" placeholder="Enter pick up point"> -->
+                      <v-text-field id="pac-input"
+                      v-model="menuForm.menuLocation"
+                      ref="source"
+                                placeholder="Enter a location here"
+                              ></v-text-field>
+                       
+  
+                    </div>
+  
+                  </div>
+
+      <v-btn icon @click="initializeMaps">
+        <v-icon>my_location</v-icon>
+      </v-btn>
+    </v-toolbar>
+              <!-- <v-text-field
                 v-model="menuForm.menuLocation"
                 :rules="nameRules"
                 label="Hotel Location"
@@ -40,6 +64,9 @@
                 prepend-icon="place"
                 outline
               ></v-text-field>
+               <v-btn  color="primary" fab small dark>
+              <v-icon>edit</v-icon>
+            </v-btn> -->
             </v-flex>
            
             <v-flex xs12 sm12 md12>
@@ -167,6 +194,58 @@
         </v-card-text>
       </v-card>
     </v-dialog>
+     <v-dialog v-model="mapdialog" fullscreen hide-overlay transition="dialog-bottom-transition">
+    
+      <v-card>
+        <v-toolbar dark color="primary">
+          <v-btn icon dark @click="mapdialog = false">
+            <v-icon>close</v-icon>
+          </v-btn>
+          <v-toolbar-title>Set Hotel Location using Pin</v-toolbar-title>
+          <v-spacer></v-spacer>
+          <v-toolbar-items>
+            <v-btn dark flat @click="mapdialog = false">Close</v-btn>
+          </v-toolbar-items>
+        </v-toolbar>
+         <v-toolbar
+         style="margin-top: 10px; position: absolute; z-index: 2"
+      dense
+      floating
+    >
+        <div class="pac-card" id="pac-card">
+  
+                    <div id="pac-container" >
+  
+                     
+                      <v-text-field id="pac-input2"
+                      v-model="menuForm.menuLocation"
+                      ref="source"
+                                placeholder="Enter a location here"
+                              ></v-text-field>
+                       
+  
+                    </div>
+  
+                  </div>
+
+      <v-btn icon>
+        <v-icon>my_location</v-icon>
+      </v-btn>
+
+      <v-btn icon>
+        <v-icon>more_vert</v-icon>
+      </v-btn>
+    </v-toolbar>
+     
+       
+
+     
+      <div id="mapmy"></div>
+  
+   
+     
+      </v-card>
+    </v-dialog>
           <!-- <v-btn
       color="warning"
       @click="resetValidation"
@@ -191,11 +270,19 @@ const axios = require('axios');
 import { mapGetters } from 'vuex'
 import { mapState } from 'vuex'
 import { mapWaitingActions, mapWaitingGetters } from 'vue-wait'
+import GoogleMapsLoader from "google-maps";
 
+import getLocation from "./utils/GeoLocation";
+
+import styles from "./utils/styles";
 // Import FilePond plugins
 // Please note that you need to install these plugins separately
 
 // Import image preview plugin styles
+GoogleMapsLoader.KEY = "AIzaSyBwNhtFQMlUzChkztqeQ3dI9Xz4CNEWEP0";
+GoogleMapsLoader.LIBRARIES = ["geometry", "places"];
+GoogleMapsLoader.REGION = "KE";
+
 import "filepond-plugin-image-preview/dist/filepond-plugin-image-preview.min.css";
 
 // Import image preview and file type validation plugins
@@ -263,6 +350,7 @@ export default {
 
   },
   data: () => ({
+    mapdialog: false,
     value: "https://example.com/",
     size: 250,
     valid: true,
@@ -279,14 +367,22 @@ export default {
         menuLogoUrl: "https://res.cloudinary.com/micqual/image/upload/v1550411381/Group_14.png",
         menuLocation: "",
         menuQRcode: '',
-        thumb_menuCoverUrl: "https://res.cloudinary.com/micqual/image/upload/w_200,h_200,c_crop,g_face,r_max/v1550411486/download.jpg",
-        thumb_menuLogoUrl: "https://res.cloudinary.com/micqual/image/upload/w_200,h_200,c_crop,g_face,r_max/v1550411381/Group_14.png"
+        thumb_menuCoverUrl: "https://res.cloudinary.com/micqual/image/upload/w_400,h_300/v1550411486/download.jpg",
+        thumb_menuLogoUrl: "https://res.cloudinary.com/micqual/image/upload/w_200,h_200/v1550411381/Group_14.png"
     },
     nameRules: [
       v => !!v || "Name is required"
       // v => (v && v.length <= 10) || 'Name must be less than 10 characters'
     ],
     myFiles: [],
+    pin_src: null,
+    sourceMarker: null,
+    sourcePop: null,
+    location_details: "",
+    place_id: '',
+     sourcePoint: null,
+       mymap: null, 
+       pin_src: null,
     myCover: [],
     cloudinary: {
       uploadPreset: "n6mgm8sq",
@@ -312,6 +408,35 @@ export default {
         this.cloudinary.cloudName
       }/upload`;
     }
+  },
+  mounted(){
+    
+  },
+  created(){
+GoogleMapsLoader.load(google => {
+     var autocomplete = new google.maps.places.Autocomplete(
+          document.getElementById("pac-input")
+        );
+
+        autocomplete.addListener("place_changed", () => {
+          let place = autocomplete.getPlace();
+
+        //  console.log("===============SOURCE=====================");
+
+         // console.log(place);
+
+        //  console.log("====================================");
+
+          self.setPlace(place);
+        });
+
+        var autocomplete = new google.maps.places.Autocomplete(
+          document.getElementById("pac-input2")
+        );
+
+        
+});
+    
   },
   methods: {
     validate() {
@@ -348,6 +473,7 @@ export default {
               'coverPhoto': vm.menuForm.menuCoverUrl,
               'thumb_logo': vm.menuForm.thumb_menuLogoUrl,
               'thumb_cover': vm.menuForm.thumb_menuCoverUrl,
+              'menuLatLng': vm.sourcePoint,
               'created_at': -1 * new Date().getTime(),
               "uid": vm.Load_currentUser.uid
             }
@@ -378,6 +504,256 @@ export default {
     },
     resetValidation() {
       this.$refs.form.resetValidation();
+    },
+    initializeMaps(){
+      this.mapdialog = true
+       GoogleMapsLoader.load(google => {
+      getLocation(location => {
+        let geocoder = new google.maps.Geocoder();
+
+        const self = this;
+
+        let position = {
+          lat: location.coords.latitude,
+
+          lng: location.coords.longitude
+        }; //End Position
+
+        // let username = this.currentUser.name
+
+        // let user_details = {
+
+        //     location: position,
+
+        //     timestamp: today.toISOString()
+
+        // }
+
+        // var userRef = firebase.database().ref(`users/${this.name}`);
+
+        // userRef.update({user_details});
+
+        geocoder.geocode(
+          {
+            location: position
+          },
+
+          function(results, status) {
+            if (status === "OK") {
+              if (results[0]) {
+                //    console.log('=================MY LOCATION HERE===================');
+
+                //    console.log(results[0]);
+
+                //    console.log('====================================');
+
+                self.location_details = results[0].formatted_address; //Set the initial location deatils
+
+                // self.trip.source = results[0].formatted_address;
+                self.menuForm.menuLocation = results[0].formatted_address;
+
+                // self.$refs.source.value = results[0].formatted_address;
+
+                self.setPlace(results[0]);
+
+                self.place_id = results[0].place_id;
+
+                self.sourcePoint = {
+                  latitude: results[0].geometry.location.lat(),
+
+                  longitude: results[0].geometry.location.lng()
+                };
+              } else {
+                window.alert("No results found"); //TODO handle this later on
+              }
+            } else {
+              window.alert("Geocoder failed due to: " + status); //TODO also handle this later
+            }
+          }
+        ); //End geocode for the very first time
+
+        this.pin_src = position;
+
+        let map = new google.maps.Map(document.getElementById("mapmy"), {
+          zoom: 15,
+
+          center: position,
+
+          styles: styles.silver
+        }); //End Map
+
+        //Source marker
+
+        // var input = document.getElementById('pac-input');
+
+        var autocomplete = new google.maps.places.Autocomplete(
+          document.getElementById("pac-input")
+        );
+
+        autocomplete.addListener("place_changed", () => {
+          let place = autocomplete.getPlace();
+
+        //  console.log("===============SOURCE=====================");
+
+         // console.log(place);
+
+        //  console.log("====================================");
+
+          self.setPlace(place);
+        });
+
+        var autocomplete2 = new google.maps.places.Autocomplete(
+          document.getElementById("pac-input2")
+        );
+
+        autocomplete2.addListener("place_changed", () => {
+          let place = autocomplete2.getPlace();
+
+        //  console.log("===============SOURCE=====================");
+
+         // console.log(place);
+
+        //  console.log("====================================");
+
+          self.setPlace(place);
+        });
+        
+
+       
+
+        // console.log('=====================My auto Complete===============');
+
+        // console.log(autocomplete);
+
+        // console.log('====================================');
+
+        // autocomplete.bindTo('bounds', map);
+
+        this.mymap = map;
+
+        let myLocmarker = new google.maps.Marker({
+          flat: true,
+
+          icon: {
+            path: google.maps.SymbolPath.CIRCLE,
+
+            scale: 8,
+
+            fillOpacity: 0.8,
+
+            strokeColor: "gold",
+
+            strokeWeight: 5
+          },
+
+          map: this.mymap,
+
+          optimized: false,
+
+          position: position,
+
+          title: "location",
+
+          visible: true
+        }); //end Marker Icon Location Image
+
+        // var Popup = this.createPopUpClass(); //Create the popup class here
+
+        // let popup = new Popup(
+        //   new google.maps.LatLng(position.lat, position.lng),
+
+        //   document.getElementById("loc_pop")
+        // ); //Add a popup for the current location
+
+        // popup.setMap(map); //Add the popup to the map
+
+        // myLocmarker.addListener("click", function() {
+        //   // infowindow.open(map, myLocmarker);
+        // }); //This method is yet to be used, man i have alot on my plate
+
+        let pin = new google.maps.Marker({
+          icon: {
+            path: google.maps.SymbolPath.BACKWARD_CLOSED_ARROW,
+
+            scale: 5,
+
+            fillOpacity: 0.8,
+
+            strokeColor: "gold",
+
+            strokeWeight: 1
+          },
+
+          map: map,
+
+          position: map.getCenter(),
+
+          title: "Pin"
+        });
+
+        map.addListener("dragend", e => {
+          let pos = {
+            lat: map.getCenter().lat(),
+
+            lng: map.getCenter().lng()
+          };
+
+          geocoder.geocode(
+            {
+              location: pos
+            },
+
+            function(results, status) {
+              if (status === "OK") {
+                if (results[0]) {
+                  console.log('================GOECODED MESSAGE====================');
+
+                  console.log(results[0]);
+
+                  console.log('====================================');
+
+                  self.location_details = results[0].formatted_address;
+                  self.menuForm.menuLocation =  results[0].formatted_address;
+                  // self.location_data = results[0];
+                } else {
+                  window.alert("No results found"); //TODO handle this later on
+                }
+              } else {
+                window.alert("Geocoder failed due to: " + status); //TODO also handle this later
+              }
+            }
+          );
+        });
+
+        map.addListener("drag", function(e) {
+          // this.pin_dest = map.getCenter();
+
+          let pos = {
+            lat: map.getCenter().lat(),
+
+            lng: map.getCenter().lng()
+          };
+
+          // console.log('==================fgfgfgfg==================');
+
+          // console.log(JSON.stringify(map.getCenter()));
+
+          // console.log('====================================');
+
+          pin.setPosition(map.getCenter()); //Updates the pin location to the center of map
+
+          // self.pin_dest = pos;
+
+          // console.log('====================================');
+
+          // console.log(map.getCenter());
+
+          // console.log(self.pin_dest);
+          // console.log('====================================');
+        }); //End the map listener
+      }); //End getLocation
+    }); //End GooglemapsLoader
+
     },
     handleFilePondInit: function() {
       console.log("FilePond has initialized");
@@ -451,7 +827,7 @@ export default {
       let cloudinaryResp = JSON.parse(file.serverId);
       console.log(cloudinaryResp);
       this.menuForm.menuLogoUrl = cloudinaryResp.url
-      this.menuForm.thumb_menuLogoUrl = `https://res.cloudinary.com/micqual/image/upload/w_200,h_200,c_crop,g_face,r_max/v${cloudinaryResp.version}/${cloudinaryResp.public_id}.${cloudinaryResp.format}`
+      this.menuForm.thumb_menuLogoUrl = `https://res.cloudinary.com/micqual/image/upload/w_200,h_200/v${cloudinaryResp.version}/${cloudinaryResp.public_id}.${cloudinaryResp.format}`
 
     },
     handleProcessSuccessCover(error, file) {
@@ -459,11 +835,176 @@ export default {
       let cloudinaryResp = JSON.parse(file.serverId);
       console.log(cloudinaryResp);
       this.menuForm.menuCoverUrl = cloudinaryResp.url
-      this.menuForm.thumb_menuCoverUrl = `https://res.cloudinary.com/micqual/image/upload/w_200,h_200,c_crop,g_face,r_max/v${cloudinaryResp.version}/${cloudinaryResp.public_id}.${cloudinaryResp.format}`
+      this.menuForm.thumb_menuCoverUrl = `https://res.cloudinary.com/micqual/image/upload/w_400,h_300/v${cloudinaryResp.version}/${cloudinaryResp.public_id}.${cloudinaryResp.format}`
       // 
     //   
     //   {public_id: "cvxjosardnmchrzqtaae", version: 1550412059,
-    }
+    },
+    createPopUpClass() {
+      var Popup;
+
+      Popup = function(position, content) {
+        this.position = position;
+
+        content.classList.add("popup-bubble-content");
+
+        var pixelOffset = document.createElement("div");
+
+        pixelOffset.classList.add("popup-bubble-anchor");
+
+        pixelOffset.appendChild(content);
+
+        this.anchor = document.createElement("div");
+
+        this.anchor.classList.add("popup-tip-anchor");
+
+        this.anchor.appendChild(pixelOffset);
+
+        // Optionally stop clicks, etc., from bubbling up to the map.
+
+        this.stopEventPropagation();
+      };
+
+      // NOTE: google.maps.OverlayView is only defined once the Maps API has
+
+      // loaded. That is why Popup is defined inside initMap().
+
+      Popup.prototype = Object.create(google.maps.OverlayView.prototype);
+
+      /** Called when the popup is added to the map. */
+
+      Popup.prototype.onAdd = function() {
+        this.getPanes().floatPane.appendChild(this.anchor);
+      };
+
+      /** Called when the popup is removed from the map. */
+
+      Popup.prototype.onRemove = function() {
+        if (this.anchor.parentElement) {
+          this.anchor.parentElement.removeChild(this.anchor);
+        }
+      };
+
+      /** Called when the popup needs to draw itself. */
+
+      Popup.prototype.draw = function() {
+        var divPosition = this.getProjection().fromLatLngToDivPixel(
+          this.position
+        );
+
+        // Hide the popup when it is far out of view.
+
+        var display =
+          Math.abs(divPosition.x) < 4000 && Math.abs(divPosition.y) < 4000
+            ? "block"
+            : "none";
+
+        if (display === "block") {
+          this.anchor.style.left = divPosition.x + "px";
+
+          this.anchor.style.top = divPosition.y + "px";
+        }
+
+        if (this.anchor.style.display !== display) {
+          this.anchor.style.display = display;
+        }
+      };
+
+      /** Stops clicks/drags from bubbling up to the map. */
+
+      Popup.prototype.stopEventPropagation = function() {
+        var anchor = this.anchor;
+
+        anchor.style.cursor = "auto";
+
+        [
+          "click",
+
+          "dblclick",
+
+          "contextmenu",
+
+          "wheel",
+
+          "mousedown",
+
+          "touchstart",
+
+          "pointerdown"
+        ].forEach(function(event) {
+          anchor.addEventListener(event, function(e) {
+            e.stopPropagation();
+          });
+        });
+      };
+
+      return Popup;
+    },
+     setPlace(place) {
+      // this.trip.source = this.$refs.source.value;
+
+      if (this.sourceMarker != null) {
+        this.sourceMarker.setMap(null);
+      }
+
+      // console.log("====================================");
+
+      // console.log(this.$refs.source.value);
+
+      // console.log("====================================");
+
+      let position = {
+        lat: place.geometry.location.lat(),
+
+        lng: place.geometry.location.lng()
+      };
+
+      // let Popup = this.createPopUpClass();
+
+      // this.sourcePop = new Popup(
+      //   new google.maps.LatLng(position.lat, position.lng),
+
+      //   document.getElementById("loc_pop")
+      // ); //Add a popup for the current location
+
+      // this.sourcePop.setMap(this.mymap); //Add the popup to the map
+
+      this.sourceMarker = new google.maps.Marker({
+        flat: true,
+
+        icon: {
+          path: google.maps.SymbolPath.CIRCLE,
+
+          scale: 8,
+
+          fillOpacity: 0.8,
+
+          strokeColor: "gold",
+
+          strokeWeight: 5
+        },
+
+        map: this.mymap,
+
+        optimized: false,
+
+        position: position,
+
+        visible: true
+      }); //end Marker Icon Location Image
+
+      this.mymap.setCenter(position);
+
+      this.place_id = place.place_id;
+
+      this.sourcePoint = {
+        latitude: place.geometry.location.lat(),
+
+        longitude: place.geometry.location.lng()
+      };
+
+    },
+
   }
 };
 </script>
@@ -480,5 +1021,279 @@ export default {
   opacity: 0.5;
   position: absolute;
   width: 100%;
+}
+
+#mapmy {
+  position: absolute;
+
+  width: 100%;
+
+  height: 100vh;
+}
+
+/* your custom CSS \*/
+
+@-moz-keyframes pulsate {
+  from {
+    -moz-transform: scale(0.25);
+
+    opacity: 1;
+  }
+
+  95% {
+    -moz-transform: scale(1.3);
+
+    opacity: 0;
+  }
+
+  to {
+    -moz-transform: scale(0.3);
+
+    opacity: 0;
+  }
+}
+
+@-webkit-keyframes pulsate {
+  from {
+    -webkit-transform: scale(0.25);
+
+    opacity: 1;
+  }
+
+  95% {
+    -webkit-transform: scale(1.3);
+
+    opacity: 0;
+  }
+
+  to {
+    -webkit-transform: scale(0.3);
+
+    opacity: 0;
+  }
+}
+
+/* get the container that's just outside the marker image, 
+  
+      		which just happens to have our Marker title in it */
+
+#mapmy div.gmnoprint[title="location"] {
+  -moz-animation: pulsate 1.5s ease-in-out infinite;
+
+  -webkit-animation: pulsate 1.5s ease-in-out infinite;
+
+  border: 100px solid rgb(251, 255, 8);
+
+  /* make a circle */
+
+  -moz-border-radius: 50%;
+
+  -webkit-border-radius: 50%;
+
+  border-radius: 50%;
+
+  /* multiply the shadows, inside and outside the circle */
+
+  -moz-box-shadow: inset 0 0 5px rgb(221, 255, 0),
+    inset 0 0 5px rgb(243, 255, 19), inset 0 0 5px gold, 0 0 5px gold,
+    0 0 5px gold, 0 0 5px gold;
+
+  -webkit-box-shadow: inset 0 0 5px rgb(221, 255, 0),
+    inset 0 0 5px rgb(221, 255, 0), inset 0 0 5px gold, 0 0 5px gold,
+    0 0 5px gold, 0 0 5px gold;
+
+  box-shadow: inset 0 0 5px rgb(229, 255, 0), inset 0 0 5px rgb(221, 255, 0),
+    inset 0 0 5px gold, 0 0 5px gold, 0 0 5px gold, 0 0 5px gold;
+
+  /* set the ring's new dimension and re-center it */
+
+  height: 11px !important;
+
+  margin: -90px 0 0 -90px;
+
+  width: 51px !important;
+}
+
+/* hide the superfluous marker image since it would expand and shrink with its containing element */
+.popup-tip-anchor {
+  height: 0;
+
+  position: absolute;
+}
+
+/* The bubble is anchored above the tip. */
+
+.popup-bubble-anchor {
+  position: absolute;
+
+  width: 100%;
+
+  bottom: 8px;
+
+  left: 0;
+}
+
+/* Draw the tip. */
+
+.popup-bubble-anchor::after {
+  content: "";
+
+  position: absolute;
+
+  top: 0;
+
+  left: 0;
+
+  /* Center the tip horizontally. */
+
+  transform: translate(-50%, 0);
+
+  /* The tip is a https://css-tricks.com/snippets/css/css-triangle/ */
+
+  width: 0;
+
+  height: 0;
+}
+
+/* The popup bubble itself. */
+
+.popup-bubble-content {
+  position: absolute;
+
+  top: 0;
+
+  left: 0;
+
+  transform: translate(-50%, -100%);
+}
+
+#location-card {
+      position: absolute;
+     
+    z-index: 1;
+    left: 35%;
+    width: 30%;
+}
+.pin-lock {
+  position: absolute;
+
+  height: 60px;
+
+  left: 53.1%;
+
+  top: 46%;
+
+  padding-left: 60px;
+}
+
+.loc_pin {
+  position: absolute;
+
+  height: 50px;
+
+  left: 0%;
+
+  top: 0%;
+
+  width: 200px;
+
+  /* border-radius: 50%; */
+
+  /* background: #000000; */
+
+  border-left: 8px groove black;
+
+  /* opacity: .8; */
+
+  text-align: center;
+
+  padding: px;
+
+  margin: -55px 1px 0px -140px;
+}
+
+.loc_pin2 {
+  position: absolute;
+
+  height: 50px;
+
+  left: 0%;
+
+  top: 0%;
+
+  width: 200px;
+
+  /* border-radius: 50%; */
+
+  /* background: #000000; */
+
+  border-left: 8px groove gold;
+
+  /* opacity: .8; */
+
+  text-align: center;
+
+  padding: px;
+
+  margin: -55px 1px 0px -140px;
+}
+
+.pin {
+  position: absolute;
+
+  height: 60px;
+
+  left: 0%;
+
+  top: 0%;
+
+  width: 60px;
+
+  /* border-radius: 50%; */
+
+  background: #000000;
+
+  /* border: 2px solid gold; */
+
+  opacity: 0.8;
+
+  text-align: center;
+
+  padding: 6px;
+}
+
+/*	#mapmy_canvas div[style*="987654"][title] img {*/
+
+#mapmy div.gmnoprint[title="location"] img {
+  display: none;
+}
+
+/* compensate for iPhone and Android devices with high DPI, add iPad media query */
+
+@media only screen and (-webkit-min-device-pixel-ratio: 1.5),
+  only screen and (device-width: 768px) {
+  #mapmy div.gmnoprint[title="location"] {
+    margin: -10px 0 0 -10px;
+  }
+  #location-card {
+      position: absolute;
+    z-index: 1;
+    left: 5%;
+    width: 90%;
+}
+}
+
+.donepicker {
+  text-align: center;
+
+  max-width: 95% !important;
+
+  width: 100%;
+
+  position: fixed;
+
+  bottom: 0px;
+
+  z-index: 1;
 }
 </style>

@@ -74,7 +74,7 @@
       </v-card>
     </v-menu>
     </v-toolbar>
-     <v-card id="scrolling-techniques" class="scroll-y" style="height: 100vh;box-shadow: none; background: #f2f2f2; padding-top: 10vh">
+     <v-card id="scrolling-techniques" class="scroll-y" style="height: 100vh;box-shadow: none; background: #fff; padding-top: 10vh">
       <v-container style="padding: 0px;" fluid grid-list-lg>
         <!-- {{Load_currentUser}} -->
          <router-view></router-view>
