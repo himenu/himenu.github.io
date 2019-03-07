@@ -212,6 +212,9 @@
       dense
       floating
     >
+    <v-btn icon @click="mapdialog = false">
+        <v-icon>arrow_back</v-icon>
+      </v-btn>
         <div class="pac-card" id="pac-card">
   
                     <div id="pac-container" >
@@ -228,13 +231,8 @@
   
                   </div>
 
-      <v-btn icon>
-        <v-icon>my_location</v-icon>
-      </v-btn>
-
-      <v-btn icon>
-        <v-icon>more_vert</v-icon>
-      </v-btn>
+      
+     
     </v-toolbar>
      
        

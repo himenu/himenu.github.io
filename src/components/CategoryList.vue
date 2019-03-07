@@ -31,13 +31,11 @@
     </v-btn> -->
               <v-spacer></v-spacer>
 
-              <v-btn dark icon class="mr-3">
-                <v-icon>edit</v-icon>
-              </v-btn>
 
-              <v-btn dark icon>
-                <v-icon>more_vert</v-icon>
-              </v-btn>
+
+              <v-btn color="orange" dark @click="downloadQR(menu.QRcode)">
+        <v-icon dark>backup</v-icon> Download QRcode
+      </v-btn>
             </v-card-title>
 
             <v-spacer></v-spacer>
@@ -56,6 +54,14 @@
         <v-list two-line subheader  v-if="categories">
 
           <v-subheader inset>All Categories</v-subheader>
+           <v-flex xs12 style="padding:0 10px;" v-if="categories.length < 1"> 
+  <!-- <vue-content-loading :width="300" :height="100">
+    <circle cx="30" cy="30" r="30" />
+    <rect x="75" y="13" rx="4" ry="4" width="100" height="15" />
+    <rect x="75" y="37" rx="4" ry="4" width="50" height="10" />
+  </vue-content-loading> -->
+  <vcl-twitch secondary="#FFC107" primary="#fb8c00"></vcl-twitch>
+               </v-flex>
           <div  v-for="category in categories"
             :key="category.name">
       <v-list-tile
@@ -149,8 +155,12 @@
 <script>
  import { find } from 'lodash'
  import firebase from '../service/firebase'
+ import { VclTwitch } from 'vue-content-loading';
 
 export default {
+     components: {
+    VclTwitch
+  },
     data () {
       return {
         menu: null,
@@ -185,13 +195,13 @@ export default {
         // console.log(newPost);
         
       });
-       categories.on("value", function(snapshot, prevChildKey) {
-        // vm.menu = newPost
-         var newCategory = snapshot.val();
-        vm.categories = newCategory
-        console.log(newCategory);
-        
-      });
+        categories.on("value", function(snapshot, prevChildKey) {
+          // vm.menu = newPost
+          var newCategory = snapshot.val();
+          vm.categories = newCategory
+          console.log(newCategory);
+          
+        });
       //  categories.on("child_added", function(snapshot, prevChildKey) {
       //   // vm.menu = newPost
       //    var newCategory = snapshot.val();
@@ -201,6 +211,12 @@ export default {
       // });
     },
     methods: {
+      downloadQR(url){
+        window.open(
+          url,
+          '_blank' // <- This is what makes it open in a new window.
+        );
+      },
       addCategories(){
            if (this.$refs.form.validate()) {
          let obj = firebase.database.ref('menus/' + this.$route.params.menu_id);

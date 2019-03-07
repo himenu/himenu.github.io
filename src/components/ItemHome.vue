@@ -1,18 +1,28 @@
 <template>
-  <v-layout row>
+  <v-layout row  style="height: 100vh; background: #fff; padding-top: 5vh">
     <v-flex xs12 sm6 offset-sm3>
-      <v-toolbar card prominent>
-        <!-- <v-btn icon color="cyan" flat @click="$router.go(-1)">
+        
+ <v-toolbar
+      absolute
+      scroll-off-screen
+      scroll-target="#scrolling-techniques"
+      dark
+      color="primary"
+    >
+      <!-- <v-btn icon flat @click="$router.push('/menu/'+$route.params.menu_id+'/categories')">
           <v-icon>arrow_back</v-icon>
-        </v-btn> -->
-        <v-toolbar-title class="body-2 grey--text">{{ itemForm.itemName }}</v-toolbar-title>
-        <!-- {{ item }} -->
-        <v-spacer></v-spacer>
-
-        <!-- <v-btn icon class="hidden-xs-only">
-              <v-icon>search</v-icon>
-        </v-btn>-->
-      </v-toolbar>
+      </v-btn> -->
+      <v-btn icon flat @click="$router.go(-1)">
+          <v-icon>arrow_back</v-icon>
+        </v-btn>
+      <v-toolbar-title>{{ itemForm.itemName }}</v-toolbar-title>
+   
+      <v-spacer></v-spacer>
+      <v-btn icon @click="dialogDelete = true">
+        <v-icon>delete</v-icon>
+      </v-btn>
+    </v-toolbar>    
+     
       <v-card :raised="false" style="box-shadow: none; padding: 40px">
         <div></div>
   
@@ -25,15 +35,13 @@
                 label="Food/Meal Name"
                 placeholder="e.g Coffee or Tea"
                 required
-                outline
+                box
               ></v-text-field>
             </v-flex>
             
-            
-           
             <v-flex xs12 sm12 md12>
               <v-textarea
-                outline
+                box
                 v-model="itemForm.itemDescription"
                 name="input-7-4"
                 label="Description"
@@ -50,7 +58,7 @@
         type="number"
           prefix="Kes"
           required
-                outline
+                box
         ></v-text-field>
             </v-flex>
             <v-flex xs12 sm12 md12>
@@ -67,13 +75,47 @@
             </v-flex>
           </v-layout>
 
-<!-- 
+
           <v-btn :disabled="!valid && dialog"  color="success" @click="validate"  :loading="dialog">Add new Meal
 <v-icon left dark>cloud_upload</v-icon>
 
           </v-btn>
 
-          <v-btn color="error" @click="reset">Reset</v-btn> -->
+          <v-btn color="error" @click="reset">Reset</v-btn>
+           <v-dialog
+      v-model="dialogDelete"
+      max-width="290"
+    >
+      <v-card>
+        <v-card-title class="headline">Delete {{ itemForm.itemName }}?</v-card-title>
+
+        <v-card-text>
+         The operation will delete {{ itemForm.itemName }}!
+        </v-card-text>
+
+        <v-card-actions>
+          <v-spacer></v-spacer>
+
+          
+
+          <v-btn
+            color="red"
+            flat="flat"
+            @click="removeItem"
+          >
+            Delete anyway
+          </v-btn>
+          
+          <v-btn
+            color="green darken-1"
+      class="white--text"
+            @click="dialogDelete = false"
+          >
+            Cancel
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
  <v-dialog
       v-model="dialog"
       hide-overlay
@@ -147,6 +189,7 @@ export default {
     valid: true,
     sendingFirebase: false,
     dialog: false,
+    dialogDelete: false,
     itemForm: {
         itemName: 'Item',
         itemDescription: "",
@@ -183,7 +226,7 @@ export default {
              vm.itemForm.photo_url = item.photo_url
               vm.itemForm.thumb_url = item.thumb_url
               vm.itemForm.itemName = item.name
-              vm.itemForm.description = item.description
+              vm.itemForm.itemDescription = item.description
               vm.itemForm.itemPrice = item.price
             //   vm.myFiles.push(item.photo_url)
         
@@ -195,17 +238,25 @@ export default {
               vm.itemForm.photo_url = item.photo_url
               vm.itemForm.thumb_url = item.thumb_url
               vm.itemForm.itemName = item.name
-              vm.itemForm.description = item.description
+              vm.itemForm.itemDescription = item.description
               vm.itemForm.itemPrice = item.price
         console.log(item);
         
       });
     },
   methods: {
+    removeItem(){
+       let obj = firebase.database.ref('menus/' + this.$route.params.menu_id);
+         obj.child('categories').child(this.$route.params.cat_id).child(this.$route.params.item_id).remove()
+         this.$router.go(-1)
+         this.dialogDelete = false
+    },
     validate() {
       if (this.$refs.form.validate()) {
+        console.log(this.itemForm);
         
-        firebase.database.ref('menus').child(this.$route.params.menu_id).child('categories').child(this.$route.params.cat_id).push(
+        
+        firebase.database.ref('menus').child(this.$route.params.menu_id).child('categories').child(this.$route.params.cat_id).child(this.$route.params.item_id).update(
          {
               'name': this.itemForm.itemName,
               'description': this.itemForm.itemDescription,

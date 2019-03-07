@@ -236,6 +236,21 @@
 
                 </v-btn> -->
             </v-flex>
+            <v-flex xs6 sm6 md6 style="text-align: left;  padding: 0 15px">
+ <v-btn color="error" fab large @click="LoginWithPhone" id="sign-in-button" style="   
+    font-size: 160%;
+    font-weight: bolder;">
+              <!-- <v-icon>fa-search</v-icon> -->
+              P
+            </v-btn>
+             <!-- <v-btn block round  color="primary" style="padding:15px; height: 55px">
+            <v-icon left dark>cloud_upload</v-icon> Google+
+
+                </v-btn> -->
+            </v-flex>
+            <v-flex  xs6 sm6 md6>
+               <div id="recaptcha-container"></div>
+            </v-flex>
 
             
            
@@ -347,6 +362,60 @@ methods:{
    ...mapWaitingActions('users', {
       saveUser: 'save_user',
     }),
+    LoginWithPhone(){
+      var phoneNumber = "+254713591452"
+      firebase.auth().useDeviceLanguage();
+      window.recaptchaVerifier = new firebase.auth.RecaptchaVerifier('recaptcha-container', {
+      'size': 'normal',
+      'callback': function(response) {
+        console.log("Ia am here");
+        
+      console.log(response);
+      
+        // reCAPTCHA solved, allow signInWithPhoneNumber.
+        // ...
+      },
+      'expired-callback': function() {
+        // Response expired. Ask user to solve reCAPTCHA again.
+        // ...
+      }
+    });
+    var appVerifier = window.recaptchaVerifier;
+    firebase.auth().signInWithPhoneNumber(phoneNumber, appVerifier)
+        .then(function (confirmationResult) {
+          // SMS sent. Prompt user to type the code from the message, then sign the
+          // user in with confirmationResult.confirm(code).
+          window.confirmationResult = confirmationResult;
+            console.log("I AM ALSO HERE");
+            // var code = "123456";
+            //   confirmationResult.confirm(code).then(function (result) {
+            //     // User signed in successfully.
+            //     var user = result.user;
+            //     console.log(user);
+                
+            //     // ...
+            //   })
+            //   .then(function() {
+            //         let  user = firebase.auth().currentUser;
+            //         console.log(user);
+                    
+            //         user.updateProfile({displayName: "0713591452", photoURL: 'https://res.cloudinary.com/micqual/image/upload/c_fill,ar_1:1,g_auto,r_max,bo_5px_solid_red,b_rgb:262c35/v1550606890/eubglhmr9eupdshbxmgf.jpg'});
+            //     })
+            //     .catch(function (error) {
+            //     // User couldn't sign in (bad verification code?)
+            //     // ...
+            //   });
+          console.log(confirmationResult);
+          
+        })
+        
+       .catch(function (error) {
+          // Error; SMS not sent
+          console.log(error);
+          
+          // ...
+        });
+    },
   validate () {
         if (this.$refs.form.validate()) {
           this.snackbar = true
