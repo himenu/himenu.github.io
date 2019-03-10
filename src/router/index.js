@@ -15,6 +15,9 @@ import CategoryList from '@/components/CategoryList'
 import MenuList from '@/components/MenuList'
 import Login from '@/components/Login'
 import ItemHome from  '@/components/ItemHome'
+import LoginHome from  '@/components/LoginHome'
+import Phone from  '@/components/Phone'
+import Code from  '@/components/Code'
 Vue.use(Router)
 
 const router =  new Router({
@@ -60,7 +63,25 @@ const router =  new Router({
     {
       path: '/login',
       component: Login,
-      name: 'login'
+      name: 'login',
+      redirect: 'login/def',
+      children: [
+        {
+          path: 'def',
+          name: 'def',
+          component: LoginHome
+        },
+        {
+          path: 'phone',
+          name: 'phone',
+          component: Phone
+        },
+        {
+          path: 'code',
+          name: 'code',
+          component: Code
+        },
+      ]
     },
     {
       path: '/',

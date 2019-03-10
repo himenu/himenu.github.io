@@ -119,8 +119,9 @@
               >{{menuForm.menuCode }}</div>
             </v-flex>
             <v-flex xs12 sm12 md6 style="text-align: center">
-              <qrcode-vue :value="value" :size="size" level="H" foreground="#fa4112" v-show="false"></qrcode-vue>
-              <v-hover>
+              <qrcode-vue :value="value" :size="size" level="H" foreground="#fa4112"></qrcode-vue>
+                 
+              <v-hover v-show="false">
                 <v-card
                   slot-scope="{ hover }"
                   class="mx-auto"
@@ -133,6 +134,7 @@
                     height="200px"
                     style="background-size: contain !important; top: 10px"
                   >
+                  
                     <v-expand-transition>
                       <div
                         v-if="hover"
@@ -241,8 +243,8 @@
       <div id="mapmy"></div>
   
    
-     
       </v-card>
+
     </v-dialog>
           <!-- <v-btn
       color="warning"
@@ -265,6 +267,7 @@ import "filepond/dist/filepond.min.css";
 const axios = require('axios');
  import { find } from 'lodash'
  import firebase from '../service/firebase'
+ import { GeoFire } from 'geofire'
 import { mapGetters } from 'vuex'
 import { mapState } from 'vuex'
 import { mapWaitingActions, mapWaitingGetters } from 'vue-wait'
@@ -382,6 +385,7 @@ export default {
        mymap: null, 
        pin_src: null,
     myCover: [],
+    geoFire: null,
     cloudinary: {
       uploadPreset: "n6mgm8sq",
       apiKey: "Rx89lOR04EUUysYn2WF_LamWCgc",
@@ -408,9 +412,13 @@ export default {
     }
   },
   mounted(){
-    
+      var firebaseRef = firebase.database.ref("menuLocations");
+
+  // Create a new GeoFire instance at the random Firebase location
+  this.geoFire = new GeoFire(firebaseRef);
   },
   created(){
+    let self = this
 GoogleMapsLoader.load(google => {
      var autocomplete = new google.maps.places.Autocomplete(
           document.getElementById("pac-input")
@@ -419,19 +427,13 @@ GoogleMapsLoader.load(google => {
         autocomplete.addListener("place_changed", () => {
           let place = autocomplete.getPlace();
 
-        //  console.log("===============SOURCE=====================");
+         console.log("===============SOURCE=====================");
 
-         // console.log(place);
+         console.log(place);
 
-        //  console.log("====================================");
 
           self.setPlace(place);
         });
-
-        var autocomplete = new google.maps.places.Autocomplete(
-          document.getElementById("pac-input2")
-        );
-
         
 });
     
@@ -439,6 +441,7 @@ GoogleMapsLoader.load(google => {
   methods: {
     validate() {
       if (this.$refs.form.validate()) {
+         this.geoFire.set(this.menuForm.menuCode, [this.sourcePoint.latitude,this.sourcePoint.longitude]);
         var image = document
           .getElementById("myCanvas")
           .toDataURL("image/png")
@@ -591,11 +594,11 @@ GoogleMapsLoader.load(google => {
         autocomplete.addListener("place_changed", () => {
           let place = autocomplete.getPlace();
 
-        //  console.log("===============SOURCE=====================");
+         console.log("===============SOURCE=====================");
 
-         // console.log(place);
+         console.log(place);
 
-        //  console.log("====================================");
+         console.log("====================================");
 
           self.setPlace(place);
         });
@@ -991,7 +994,9 @@ GoogleMapsLoader.load(google => {
         visible: true
       }); //end Marker Icon Location Image
 
+      if(this.mymap != null){
       this.mymap.setCenter(position);
+      }
 
       this.place_id = place.place_id;
 
@@ -1000,7 +1005,7 @@ GoogleMapsLoader.load(google => {
 
         longitude: place.geometry.location.lng()
       };
-
+     
     },
 
   }
