@@ -10,6 +10,7 @@
  import firebase from 'firebase';
 export default {
  beforeCreate () {
+
       firebase.auth().onAuthStateChanged((user) => {
         // console.log(user);
         

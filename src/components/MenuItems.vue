@@ -159,7 +159,7 @@ export default {
      }
    },
     mounted(){
-      let items = firebase.database.ref('menus').child(this.$route.params.menu_id).child('categories').child(this.$route.params.cat_id+"/")
+      let items = firebase.database.ref('global_menus').child(this.$route.params.menu_id).child('categories').child(this.$route.params.cat_id+"/")
       // console.log(obj);
       
       let vm = this
@@ -179,7 +179,7 @@ export default {
          
       },
        removeCategory(){
-          let obj = firebase.database.ref('menus/' + this.$route.params.menu_id);
+          let obj = firebase.database.ref('global_menus/' + this.$route.params.menu_id);
          obj.child('categories').child(this.$route.params.cat_id).remove()
          this.$router.go(-1)
          this.dialog = false

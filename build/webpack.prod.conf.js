@@ -105,6 +105,7 @@ const webpackConfig = merge(baseWebpackConfig, {
       cacheId: 'himenu',
       filename: 'service-worker.js',
       staticFileGlobs: ['dist/**/*.{js,html,css}'],
+      staticFileGlobsIgnorePatterns: [/dist\/*-worker\.js/],
       minify: true,
       stripPrefix: 'dist/',
       runtimeCaching: [

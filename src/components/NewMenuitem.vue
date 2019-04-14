@@ -176,7 +176,7 @@ export default {
     validate() {
       if (this.$refs.form.validate()) {
         
-        firebase.database.ref('menus').child(this.$route.params.menu_id).child('categories').child(this.$route.params.cat_id).push(
+        firebase.database.ref('global_menus').child(this.$route.params.menu_id).child('categories').child(this.$route.params.cat_id).push(
          {
               'name': this.itemForm.itemName,
               'description': this.itemForm.itemDescription,
@@ -188,7 +188,7 @@ export default {
             }
        ).then(this.$router.push('/menu/'+this.$route.params.menu_id+'/'+this.$route.params.cat_id+'/list'))
     //     vm.menuForm.menuQRcode = res.data.url
-    //    firebase.database.ref('menus').child(vm.menuForm.menuCode).set(
+    //    firebase.database.ref('global_menus').child(vm.menuForm.menuCode).set(
     //      {
               
     //           'created_at': -1 * new Date().getTime(),
@@ -233,13 +233,11 @@ export default {
 
             const request = new XMLHttpRequest();
             request.open("POST", this.clUrl);
-
             // Should call the progress method to update the progress to 100% before calling load
             // Setting computable to false switches the loading indicator to infinite mode
             request.upload.onprogress = e => {
               progress(e.lengthComputable, e.loaded, e.total);
             };
-
             // Should call the load method when done and pass the returned server file id
             // this server file id is then used later on when reverting or restoring a file
             // so your server knows which file to return without exposing that info to the client

@@ -18,6 +18,9 @@ import ItemHome from  '@/components/ItemHome'
 import LoginHome from  '@/components/LoginHome'
 import Phone from  '@/components/Phone'
 import Code from  '@/components/Code'
+import Dashboard from  '@/components/Dashboard'
+import BulkSMS from  '@/components/BulkSMS'
+import UpdateMenu from  '@/components/UpdateMenu'
 Vue.use(Router)
 
 const router =  new Router({
@@ -94,6 +97,21 @@ const router =  new Router({
           path: 'newmenu',
           name: 'newmenu',
           component: NewMenu
+        },
+        {
+          path: 'view/:id',
+          name: 'update',
+          component: UpdateMenu
+        },
+        {
+          path: 'home',
+          name: 'dashboard',
+          component: Dashboard
+        },
+        {
+          path: 'bulksms',
+          name: 'bulksms',
+          component: BulkSMS
         },
         {
           path: 'list',

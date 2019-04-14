@@ -76,7 +76,7 @@
           </v-layout>
 
 
-          <v-btn :disabled="!valid && dialog"  color="success" @click="validate"  :loading="dialog">Add new Meal
+          <v-btn :disabled="!valid && dialog"  color="success" @click="validate"  :loading="dialog">Update Meal
 <v-icon left dark>cloud_upload</v-icon>
 
           </v-btn>
@@ -217,7 +217,7 @@ export default {
     }
   },
   mounted () {
-     let item = firebase.database.ref('menus/' + this.$route.params.menu_id).child('categories').child(this.$route.params.cat_id).child(this.$route.params.item_id)
+     let item = firebase.database.ref('global_menus/' + this.$route.params.menu_id).child('categories').child(this.$route.params.cat_id).child(this.$route.params.item_id)
       let vm = this
        item.on("child_added", function(snapshot, prevChildKey) {
         // vm.menu = newPost
@@ -246,7 +246,7 @@ export default {
     },
   methods: {
     removeItem(){
-       let obj = firebase.database.ref('menus/' + this.$route.params.menu_id);
+       let obj = firebase.database.ref('global_menus/' + this.$route.params.menu_id);
          obj.child('categories').child(this.$route.params.cat_id).child(this.$route.params.item_id).remove()
          this.$router.go(-1)
          this.dialogDelete = false
@@ -256,7 +256,7 @@ export default {
         console.log(this.itemForm);
         
         
-        firebase.database.ref('menus').child(this.$route.params.menu_id).child('categories').child(this.$route.params.cat_id).child(this.$route.params.item_id).update(
+        firebase.database.ref('global_menus').child(this.$route.params.menu_id).child('categories').child(this.$route.params.cat_id).child(this.$route.params.item_id).update(
          {
               'name': this.itemForm.itemName,
               'description': this.itemForm.itemDescription,
@@ -268,7 +268,7 @@ export default {
             }
        ).then(this.$router.push('/menu/'+this.$route.params.menu_id+'/'+this.$route.params.cat_id+'/list'))
     //     vm.menuForm.menuQRcode = res.data.url
-    //    firebase.database.ref('menus').child(vm.menuForm.menuCode).set(
+    //    firebase.database.ref('global_menus').child(vm.menuForm.menuCode).set(
     //      {
               
     //           'created_at': -1 * new Date().getTime(),

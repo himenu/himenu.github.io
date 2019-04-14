@@ -1,44 +1,57 @@
 <template>
-    <div>
-         <v-app class="hide-overflow" style="position: relative;">
-           
+  <v-app >
     <v-navigation-drawer
       v-model="drawer"
-      absolute
-      temporary
+      :clipped="$vuetify.breakpoint.lgAndUp"
+      fixed
+      app
     >
-      <v-list class="pa-1">
-        <v-list-tile avatar>
-          <v-list-tile-avatar>
-            <img :src="Load_currentUser.photoURL">
-          </v-list-tile-avatar>
-
-          <v-list-tile-content>
-            <v-list-tile-title>{{ Load_currentUser.displayName}}</v-list-tile-title>
-          </v-list-tile-content>
-        </v-list-tile>
+  
+      <v-list dense>
+        <template v-for="(item,index) in items">
+        
+          <v-list-tile :key="item.text" @click="$router.push('/'+item.url)">
+            <v-list-tile-action>
+              <v-icon>{{ item.icon }}</v-icon>
+            </v-list-tile-action>
+            <v-list-tile-content>
+              <v-list-tile-title>
+                {{ item.text }}
+              </v-list-tile-title>
+            </v-list-tile-content>
+          </v-list-tile>
+           <!-- <v-divider
+              v-if="index + 1 < items.length"
+              :key="index"
+            ></v-divider> -->
+        </template>
       </v-list>
-
-     
     </v-navigation-drawer>
-              <v-toolbar
-      absolute
-      scroll-off-screen
-      scroll-target="#scrolling-techniques"
-      dark
+    <v-toolbar
+      :clipped-left="$vuetify.breakpoint.lgAndUp"
       color="primary"
+      dark
+      app
+      fixed
     >
-      <v-toolbar-side-icon @click.stop="drawer = !drawer"></v-toolbar-side-icon>
+      <v-toolbar-title style="width: 300px" class="ml-0 pl-3">
+        <v-toolbar-side-icon @click.stop="drawer = !drawer"></v-toolbar-side-icon>
+        <span class="hidden-sm-and-down">HiMenu</span>
+      </v-toolbar-title>
+       <v-btn
+      color="success"
+      class="white--text"
+    >
+      <v-icon left dark>money</v-icon>
 
-      <v-toolbar-title>My Menus</v-toolbar-title>
-   
+      Balance: KES 200.00
+    </v-btn>
       <v-spacer></v-spacer>
-     
          <v-menu
       v-model="menu"
       :close-on-content-click="false"
       :nudge-width="200"
-      offset-x
+      offset-y
     >
      <v-list class="pa-1" style="background: transparent" 
        slot="activator">
@@ -48,11 +61,7 @@
           </v-list-tile-avatar>
         </v-list-tile>
      </v-list>
-       <!-- <v-btn
-       slot="activator"
-        icon>
-        <v-icon>more_vert</v-icon>
-      </v-btn> -->
+      
 
       <v-card>
          <v-list class="pa-1">
@@ -73,70 +82,86 @@
       
       </v-card>
     </v-menu>
+     <!-- <v-btn icon>
+        <v-icon>notifications</v-icon>
+      </v-btn> -->
+     <v-btn
+     @click="SignOut"
+        icon>
+        <v-icon>exit_to_app</v-icon>
+      </v-btn>
+     
+      <v-btn icon large>
+        <v-avatar size="32px" tile>
+          <img
+            src="./logo.png"
+            alt="HiMenu"
+          >
+        </v-avatar>
+      </v-btn>
     </v-toolbar>
-     <v-card id="scrolling-techniques" class="scroll-y" style="height: 100vh;box-shadow: none; background: #fff; padding-top: 10vh">
-      <v-container style="padding: 0px;" fluid grid-list-lg>
-        <!-- {{Load_currentUser}} -->
-         <router-view></router-view>
-         
+    <v-content>
+      <v-container grid-list-md style="padding: 0px">
+        <v-layout row wrap>
+             <v-flex xs12 sm12 >
+               <router-view></router-view>
+             </v-flex>
+        </v-layout>
       </v-container>
-       <!-- <v-btn
-              absolute
-              dark
-              fab
-              bottom
-              right
-              color="pink"
-            >
-              <v-icon>add</v-icon>
-            </v-btn> -->
-     </v-card>
-         </v-app>
-    </div>
+    </v-content>
+   
+  </v-app>
 </template>
 
-
-<style>
-
-</style>
-
 <script>
+import firebase from "firebase";
+
 import { mapGetters } from 'vuex'
 import { mapState } from 'vuex'
 import { mapWaitingActions, mapWaitingGetters } from 'vue-wait'
 
-export default {
-    computed: {
+  export default {
+      computed: {
    ...mapGetters([
            'Load_currentUser'
       // ...
          ]),
+        
 
   },
-    data () {
-      return {
+  
+    data: () => ({
+      dialog: false,
+      drawer: null,
+      fav: true,
       menu: false,
-        drawer: null,
-        items: [
-          { icon: 'folder', iconClass: 'grey lighten-1 white--text', title: 'Photos', subtitle: 'Jan 9, 2014' },
-          { icon: 'folder', iconClass: 'grey lighten-1 white--text', title: 'Recipes', subtitle: 'Jan 17, 2014' },
-          { icon: 'folder', iconClass: 'grey lighten-1 white--text', title: 'Work', subtitle: 'Jan 28, 2014' }
-        ],
-        items2: [
-          { icon: 'assignment', iconClass: 'blue white--text', title: 'Vacation itinerary', subtitle: 'Jan 20, 2014' },
-          { icon: 'call_to_action', iconClass: 'amber white--text', title: 'Kitchen remodel', subtitle: 'Jan 10, 2014' }
-        ]
+      message: false,
+      hints: true,
+      items: [
+        { icon: 'contacts', text: 'Dashboard', url: 'home' },
+        { icon: 'contacts', text: 'My Hotel Menus', url: 'list' },
+       
+        { icon: 'settings', text: 'Bulk SMS', url: 'bulksms' },
+
+        { icon: 'settings', text: 'HiOrders', url: 'list'},
+        { icon: 'chat_bubble', text: 'Send feedback', url: 'home' },
+        { icon: 'help', text: 'Help', url: 'list' },
+      ]
+    }),
+    props: {
+      source: String
+    },
+    methods: {
+      SignOut(){
+        let vm = this
+        firebase.auth().signOut().then(function() {
+          // Sign-out successful.
+          vm.$router.replace("/login");
+        }, function(error) {
+          // An error happened.
+          alert("Oops, error! try again")
+        });
       }
     }
   }
 </script>
-
-<style>
-#app {
-  font-family: "Avenir", Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  color: #2c3e50;
-}
-
-</style>

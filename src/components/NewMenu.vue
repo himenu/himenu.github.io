@@ -6,7 +6,6 @@
           <v-icon>arrow_back</v-icon>
         </v-btn>
         <v-toolbar-title class="body-2 grey--text">Create an new Menu</v-toolbar-title>
-
         <v-spacer></v-spacer>
 
         <!-- <v-btn icon class="hidden-xs-only">
@@ -15,11 +14,14 @@
       </v-toolbar>
       <v-card :raised="false" style="box-shadow: none; padding: 40px">
         <div></div>
-  <!-- <pre>
+        <!-- <pre>
     {{ Load_currentUser }}
-  </pre> -->
+    
+        </pre>-->
+        <!-- {{ filteredList }} -->
         <v-form ref="form" v-model="valid" lazy-validation>
           <v-layout row wrap style="padding-top: 20px">
+            
             <v-flex xs12 sm6 md6>
               <v-text-field
                 v-model="menuName"
@@ -31,30 +33,23 @@
               ></v-text-field>
             </v-flex>
             <v-flex xs12 sm6 md6>
-                <v-toolbar
-      dense
-    >
-        <div class="pac-card" id="pac-card">
-  
-                    <div id="pac-container">
-  
-                     
-                        <!-- <input id="pac-input" class="form-control" ref="source" type="text" placeholder="Enter pick up point"> -->
-                      <v-text-field id="pac-input"
+              <v-toolbar dense>
+                <div class="pac-card" id="pac-card">
+                  <div id="pac-container">
+                    <!-- <input id="pac-input" class="form-control" ref="source" type="text" placeholder="Enter pick up point"> -->
+                    <v-text-field
+                      id="pac-input"
                       v-model="menuForm.menuLocation"
                       ref="source"
-                                placeholder="Enter a location here"
-                              ></v-text-field>
-                       
-  
-                    </div>
-  
+                      placeholder="Enter a location here"
+                    ></v-text-field>
                   </div>
+                </div>
 
-      <v-btn icon @click="initializeMaps">
-        <v-icon>my_location</v-icon>
-      </v-btn>
-    </v-toolbar>
+                <v-btn icon @click="initializeMaps">
+                  <v-icon>my_location</v-icon>
+                </v-btn>
+              </v-toolbar>
               <!-- <v-text-field
                 v-model="menuForm.menuLocation"
                 :rules="nameRules"
@@ -66,9 +61,9 @@
               ></v-text-field>
                <v-btn  color="primary" fab small dark>
               <v-icon>edit</v-icon>
-            </v-btn> -->
+              </v-btn>-->
             </v-flex>
-           
+
             <v-flex xs12 sm12 md12>
               <v-textarea
                 outline
@@ -79,6 +74,19 @@
                 placeholder
                 value
               ></v-textarea>
+            </v-flex>
+            <v-flex xs12 sm12 md12>
+               <v-select v-if="filteredList.length > 0"
+              v-model="existingMenu"
+              :items="filteredList"
+              outline
+              item-text="name"
+              item-value="category"
+              label="Choose a Restaraunt"
+              persistent-hint
+              return-object
+              single-line
+            ></v-select>
             </v-flex>
             <v-flex xs12 sm12 md6>
               <file-pond
@@ -105,7 +113,7 @@
               />
             </v-flex>
             <v-flex xs12 sm12 md6 style="text-align: center">
-                Your hiMenu Code
+              Your hiMenu Code
               <div
                 style="
     text-align: center;
@@ -116,11 +124,11 @@
     font-weight: bolder;
     border-radius: 10px;
 "
-              >{{menuForm.menuCode }}</div>
+              >{{ menuForm.menuCode }}</div>
             </v-flex>
             <v-flex xs12 sm12 md6 style="text-align: center">
               <qrcode-vue :value="value" :size="size" level="H" foreground="#fa4112"></qrcode-vue>
-                 
+
               <v-hover v-show="false">
                 <v-card
                   slot-scope="{ hover }"
@@ -134,26 +142,25 @@
                     height="200px"
                     style="background-size: contain !important; top: 10px"
                   >
-                  
                     <v-expand-transition>
                       <div
                         v-if="hover"
                         class="d-flex transition-fast-in-fast-out black darken-2 v-card--reveal display-3 white--text"
                         style="height: 100%;"
-                      >HIMENU</div>
+                      >HiMENU</div>
                     </v-expand-transition>
                   </v-img>
                   <v-card-text class="pt-4" style="position: relative; ">
                     <v-btn
-                      absolute
-                      color="orange"
-                      class="white--text"
-                      :disabled="dataImage == null"
-                      fab
-                      large
-                      right
-                      top
-                    >
+                        absolute
+                        color="orange"
+                        class="white--text"
+                        :disabled="dataImage == null"
+                        fab
+                        large
+                        right
+                        top
+                      >
                       <v-icon>arrow_downward</v-icon>
                     </v-btn>
                     <div class="font-weight-light grey--text title mb-2">Generated QRCODE</div>
@@ -170,82 +177,56 @@
             required
           ></v-checkbox>
 
-          <v-btn :disabled="!valid && dialog"  color="success" @click="validate"  :loading="dialog">Publish My hiMenu
-<v-icon left dark>cloud_upload</v-icon>
-
+          <v-btn :disabled="!valid && dialog" color="success" @click="validate" :loading="dialog">
+            Publish My hiMenu
+            <v-icon left dark>cloud_upload</v-icon>
           </v-btn>
 
           <v-btn color="error" @click="reset">Reset</v-btn>
- <v-dialog
-      v-model="dialog"
-      hide-overlay
-      persistent
-      width="300"
-    >
-      <v-card
-        color="primary"
-        dark
-      >
-        <v-card-text>
-          Please stand by
-          <v-progress-linear
-            indeterminate
-            color="white"
-            class="mb-0"
-          ></v-progress-linear>
-        </v-card-text>
-      </v-card>
-    </v-dialog>
-     <v-dialog v-model="mapdialog" fullscreen hide-overlay transition="dialog-bottom-transition">
-    
-      <v-card>
-        <v-toolbar dark color="primary">
-          <v-btn icon dark @click="mapdialog = false">
-            <v-icon>close</v-icon>
-          </v-btn>
-          <v-toolbar-title>Set Hotel Location using Pin</v-toolbar-title>
-          <v-spacer></v-spacer>
-          <v-toolbar-items>
-            <v-btn dark flat @click="mapdialog = false">Close</v-btn>
-          </v-toolbar-items>
-        </v-toolbar>
-         <v-toolbar
-         style="margin-top: 10px; position: absolute; z-index: 2"
-      dense
-      floating
-    >
-    <v-btn icon @click="mapdialog = false">
-        <v-icon>arrow_back</v-icon>
-      </v-btn>
-        <div class="pac-card" id="pac-card">
-  
-                    <div id="pac-container" >
-  
-                     
-                      <v-text-field id="pac-input2"
+          <v-dialog v-model="dialog" hide-overlay persistent width="300">
+            <v-card color="primary" dark>
+              <v-card-text>
+                Please stand by
+                <v-progress-linear indeterminate color="white" class="mb-0"></v-progress-linear>
+              </v-card-text>
+            </v-card>
+          </v-dialog>
+          <v-dialog
+            v-model="mapdialog"
+            fullscreen
+            hide-overlay
+            transition="dialog-bottom-transition"
+          >
+            <v-card>
+              <v-toolbar dark color="primary">
+                <v-btn icon dark @click="mapdialog = false">
+                  <v-icon>close</v-icon>
+                </v-btn>
+                <v-toolbar-title>Set Hotel Location using Pin</v-toolbar-title>
+                <v-spacer></v-spacer>
+                <v-toolbar-items>
+                  <v-btn dark flat @click="mapdialog = false">Close</v-btn>
+                </v-toolbar-items>
+              </v-toolbar>
+              <v-toolbar style="margin-top: 10px; position: absolute; z-index: 2" dense floating>
+                <v-btn icon @click="mapdialog = false">
+                  <v-icon>arrow_back</v-icon>
+                </v-btn>
+                <div class="pac-card" id="pac-card">
+                  <div id="pac-container">
+                    <v-text-field
+                      id="pac-input2"
                       v-model="menuForm.menuLocation"
                       ref="source"
-                                placeholder="Enter a location here"
-                              ></v-text-field>
-                       
-  
-                    </div>
-  
+                      placeholder="Enter a location here"
+                    ></v-text-field>
                   </div>
+                </div>
+              </v-toolbar>
 
-      
-     
-    </v-toolbar>
-     
-       
-
-     
-      <div id="mapmy"></div>
-  
-   
-      </v-card>
-
-    </v-dialog>
+              <div id="mapmy"></div>
+            </v-card>
+          </v-dialog>
           <!-- <v-btn
       color="warning"
       @click="resetValidation"
@@ -264,15 +245,15 @@ import vueFilePond, { setOptions } from "vue-filepond";
 import QrcodeVue from "qrcode.vue";
 // Import FilePond styles
 import "filepond/dist/filepond.min.css";
-const axios = require('axios');
- import { find } from 'lodash'
- import firebase from '../service/firebase'
- import { GeoFire } from 'geofire'
-import { mapGetters } from 'vuex'
-import { mapState } from 'vuex'
-import { mapWaitingActions, mapWaitingGetters } from 'vue-wait'
+const axios = require("axios");
+import { find } from "lodash";
+import firebase from "../service/firebase";
+import { GeoFire } from "geofire";
+import { mapGetters } from "vuex";
+import { mapState } from "vuex";
+import { mapWaitingActions, mapWaitingGetters } from "vue-wait";
 import GoogleMapsLoader from "google-maps";
-
+import fb from 'firebase';
 import getLocation from "./utils/GeoLocation";
 
 import styles from "./utils/styles";
@@ -301,54 +282,43 @@ export default {
     FilePond,
     QrcodeVue
   },
-  
+
   watch: {
-    dialog (val) {
-        if (!val) return
-
-        setTimeout(() => (this.dialog = false), 4000)
-      },
+    dialog(val) {
+      if (!val) return;
+      setTimeout(() => (this.dialog = false), 4000);
+    },
     menuName: function(val) {
-      console.log(val);
       if (val != "" && val.length < 2) {
-        
-        var countdown = function(value,vm) {
-            let random = Math.floor(Math.random() * 899 + 100);
-            let code = val.charAt(0).toUpperCase() + random;
-              if (value == 1) {
-                 let menu = firebase.database.ref('menus/' + code);
-                    menu.on("value", function(snapshot, prevChildKey) {
-                      var newMenu = snapshot.val();
-                      let found = false;
-                      // vm.menu = newMenu
-                      console.log(newMenu);
-                      console.log(code)
-                      
-                      if(newMenu == null){
-                        value = code
-                      }
-                    
-                      
-                    });
-                      return countdown(value,vm);
+        var countdown = function(value, vm) {
+          let random = Math.floor(Math.random() * 899 + 100);
+          let code = val.charAt(0).toUpperCase() + random;
+          if (value == 1) {
+            let menu = firebase.database.ref("global_menus/" + code);
+            menu.on("value", function(snapshot, prevChildKey) {
+              var newMenu = snapshot.val();
+              let found = false;
+              // vm.menu = newMenu
 
-              } else {
-                  return value;
+              if (newMenu == null) {
+                value = code;
               }
-          };
-        
+            });
+            return countdown(value, vm);
+          } else {
+            return value;
+          }
+        };
+
         console.log("===============");
-        
+
         console.log();
-        this.menuForm.menuCode = countdown(1,this)
+        this.menuForm.menuCode = countdown(1, this);
 
         this.value = this.menuForm.menuCode;
         console.log(this.value);
-        
-        
       }
     }
-
   },
   data: () => ({
     mapdialog: false,
@@ -361,15 +331,22 @@ export default {
     dialog: false,
     dataImage: null,
     menuName: "",
+    existingMenu: {
+      categories: null
+    },
     menuForm: {
-        menuCode: '',
-        menuSlogan: "",
-        menuCoverUrl: "https://res.cloudinary.com/micqual/image/upload/v1550411486/download.jpg",
-        menuLogoUrl: "https://res.cloudinary.com/micqual/image/upload/v1550411381/Group_14.png",
-        menuLocation: "",
-        menuQRcode: '',
-        thumb_menuCoverUrl: "https://res.cloudinary.com/micqual/image/upload/w_400,h_300/v1550411486/download.jpg",
-        thumb_menuLogoUrl: "https://res.cloudinary.com/micqual/image/upload/w_200,h_200/v1550411381/Group_14.png"
+      menuCode: "",
+      menuSlogan: "",
+      menuCoverUrl:
+        "https://res.cloudinary.com/micqual/image/upload/v1550411486/download.jpg",
+      menuLogoUrl:
+        "https://res.cloudinary.com/micqual/image/upload/v1550411381/Group_14.png",
+      menuLocation: "",
+      menuQRcode: "",
+      thumb_menuCoverUrl:
+        "https://res.cloudinary.com/micqual/image/upload/w_400,h_300/v1550411486/download.jpg",
+      thumb_menuLogoUrl:
+        "https://res.cloudinary.com/micqual/image/upload/w_200,h_200/v1550411381/Group_14.png"
     },
     nameRules: [
       v => !!v || "Name is required"
@@ -380,10 +357,10 @@ export default {
     sourceMarker: null,
     sourcePop: null,
     location_details: "",
-    place_id: '',
-     sourcePoint: null,
-       mymap: null, 
-       pin_src: null,
+    place_id: "",
+    sourcePoint: null,
+    mymap: null,
+    pin_src: null,
     myCover: [],
     geoFire: null,
     cloudinary: {
@@ -401,47 +378,61 @@ export default {
     checkbox: false
   }),
   computed: {
-     ...mapGetters([
-           'Load_currentUser'
+    ...mapGetters([
+      "Load_currentUser"
       // ...
-         ]),
+    ]),
     clUrl: function() {
       return `https://api.cloudinary.com/v1_1/${
         this.cloudinary.cloudName
       }/upload`;
+    },
+     filteredList() {
+       let vm = this
+       let user = fb.auth().currentUser;
+
+      return _.filter(this.$root.menus, function(menu) {
+        return (menu.uid === user.uid)
+      });
+
     }
+
   },
-  mounted(){
-      var firebaseRef = firebase.database.ref("menuLocations");
+  mounted() {
+    var firebaseRef = firebase.database.ref("global_menus");
 
-  // Create a new GeoFire instance at the random Firebase location
-  this.geoFire = new GeoFire(firebaseRef);
+    // Create a new GeoFire instance at the random Firebase location
+    this.geoFire = new GeoFire(firebaseRef);
   },
-  created(){
-    let self = this
-GoogleMapsLoader.load(google => {
-     var autocomplete = new google.maps.places.Autocomplete(
-          document.getElementById("pac-input")
-        );
+  created() {
+    let self = this;
+    GoogleMapsLoader.load(google => {
+      var autocomplete = new google.maps.places.Autocomplete(
+        document.getElementById("pac-input")
+      );
 
-        autocomplete.addListener("place_changed", () => {
-          let place = autocomplete.getPlace();
+      autocomplete.addListener("place_changed", () => {
+        let place = autocomplete.getPlace();
 
-         console.log("===============SOURCE=====================");
+        console.log("===============SOURCE=====================");
 
-         console.log(place);
+        console.log(place);
 
-
-          self.setPlace(place);
-        });
-        
-});
-    
+        self.setPlace(place);
+      });
+    });
   },
   methods: {
     validate() {
+      console.log();
+      
       if (this.$refs.form.validate()) {
-         this.geoFire.set(this.menuForm.menuCode, [this.sourcePoint.latitude,this.sourcePoint.longitude]);
+
+        this.geoFire.set(this.menuForm.menuCode, [
+          this.sourcePoint.latitude,
+          this.sourcePoint.longitude
+        ]);
+        
         var image = document
           .getElementById("myCanvas")
           .toDataURL("image/png")
@@ -450,55 +441,49 @@ GoogleMapsLoader.load(google => {
         this.dataImage = image;
         //   this.snackbar = true
         console.log(this.menuForm);
-         const formData = new FormData()
-      formData.append('file', this.dataImage);
-      formData.append('upload_preset', this.cloudinary.uploadPreset);
-      formData.append('tags', 'gs-vue,gs-vue-uploaded');
-      // For debug purpose only
-      // Inspects the content of formData
-       this.dialog = true
+        const formData = new FormData();
+        formData.append("file", this.dataImage);
+        formData.append("upload_preset", this.cloudinary.uploadPreset);
+        formData.append("tags", "gs-vue,gs-vue-uploaded");
+        // For debug purpose only
+        // Inspects the content of formData
+        this.dialog = true;
 
-      let vm = this
-     
-      axios.post(this.clUrl, formData).then(res => {
-        console.log(res);
-        vm.menuForm.menuQRcode = res.data.url
-       firebase.database.ref('menus').child(vm.menuForm.menuCode).set(
-         {
-              'name': vm.menuName,
-              'code': vm.menuForm.menuCode,
-              'slogan': vm.menuForm.menuSlogan,
-              'location': vm.menuForm.menuLocation,
-              'QRcode': vm.menuForm.menuQRcode,
-              'logoUrl': vm.menuForm.menuLogoUrl,
-              'coverPhoto': vm.menuForm.menuCoverUrl,
-              'thumb_logo': vm.menuForm.thumb_menuLogoUrl,
-              'thumb_cover': vm.menuForm.thumb_menuCoverUrl,
-              'menuLatLng': vm.sourcePoint,
-              'created_at': -1 * new Date().getTime(),
-              "uid": vm.Load_currentUser.uid
-            }
-       ).then(this.$router.push('/'))
-        //     this.dialog = false
+        let vm = this;
 
-        // vm.$root.$firebaseRefs.menus.push(
-        //     {
-        //       'name': vm.menuName,
-        //       'code': vm.menuForm.menuCode,
-        //       'slogan': vm.menuForm.menuSlogan,
-        //       'location': vm.menuForm.menuLocation,
-        //       'QRcode': vm.menuForm.menuQRcode,
-        //       'logoUrl': vm.menuForm.menuLogoUrl,
-        //       'coverPhoto': vm.menuForm.menuCoverUrl,
-        //       'thumb_logo': vm.menuForm.thumb_menuLogoUrl,
-        //       'thumb_cover': vm.menuForm.thumb_menuCoverUrl,
-        //       'created_at': -1 * new Date().getTime(),
-        //     })
-        //     .then(this.$router.push('/'))
+        axios.post(this.clUrl, formData).then(res => {
+          console.log(res);
+          vm.menuForm.menuQRcode = res.data.url;
 
-      })
+          firebase.database
+            .ref("global_menus")
+            .child(vm.menuForm.menuCode)
+            .update({
+              name: vm.menuName,
+              code: vm.menuForm.menuCode,
+              slogan: vm.menuForm.menuSlogan,
+              location: vm.menuForm.menuLocation,
+              QRcode: vm.menuForm.menuQRcode,
+              logoUrl: vm.menuForm.menuLogoUrl,
+              coverPhoto: vm.menuForm.menuCoverUrl,
+              thumb_logo: vm.menuForm.thumb_menuLogoUrl,
+              thumb_cover: vm.menuForm.thumb_menuCoverUrl,
+              menuLatLng: vm.sourcePoint,
+              created_at: -1 * new Date().getTime(),
+              categories: vm.existingMenu.categories,
+              rating: 0,
+              reviews: 0,
+              uid: vm.Load_currentUser.uid,
+              dynamic_link: encodeURI(
+                "https://sayhimenu.com?code=" +
+                  vm.menuForm.menuCode +
+                  "&name=" +
+                  vm.menuName
+              )
+            })
+            .then(this.$router.push("/"));
+        });
       }
-
     },
     reset() {
       this.$refs.form.reset();
@@ -506,216 +491,64 @@ GoogleMapsLoader.load(google => {
     resetValidation() {
       this.$refs.form.resetValidation();
     },
-    initializeMaps(){
-      this.mapdialog = true
-       GoogleMapsLoader.load(google => {
-      getLocation(location => {
-        let geocoder = new google.maps.Geocoder();
+    initializeMaps() {
+      this.mapdialog = true;
+      GoogleMapsLoader.load(google => {
+        getLocation(location => {
+          let geocoder = new google.maps.Geocoder();
 
-        const self = this;
+          const self = this;
 
-        let position = {
-          lat: location.coords.latitude,
+          let position = {
+            lat: location.coords.latitude,
 
-          lng: location.coords.longitude
-        }; //End Position
+            lng: location.coords.longitude
+          }; //End Position
 
-        // let username = this.currentUser.name
+          // let username = this.currentUser.name
 
-        // let user_details = {
+          // let user_details = {
 
-        //     location: position,
+          //     location: position,
 
-        //     timestamp: today.toISOString()
+          //     timestamp: today.toISOString()
 
-        // }
+          // }
 
-        // var userRef = firebase.database().ref(`users/${this.name}`);
+          // var userRef = firebase.database().ref(`users/${this.name}`);
 
-        // userRef.update({user_details});
-
-        geocoder.geocode(
-          {
-            location: position
-          },
-
-          function(results, status) {
-            if (status === "OK") {
-              if (results[0]) {
-                //    console.log('=================MY LOCATION HERE===================');
-
-                //    console.log(results[0]);
-
-                //    console.log('====================================');
-
-                self.location_details = results[0].formatted_address; //Set the initial location deatils
-
-                // self.trip.source = results[0].formatted_address;
-                self.menuForm.menuLocation = results[0].formatted_address;
-
-                // self.$refs.source.value = results[0].formatted_address;
-
-                self.setPlace(results[0]);
-
-                self.place_id = results[0].place_id;
-
-                self.sourcePoint = {
-                  latitude: results[0].geometry.location.lat(),
-
-                  longitude: results[0].geometry.location.lng()
-                };
-              } else {
-                window.alert("No results found"); //TODO handle this later on
-              }
-            } else {
-              window.alert("Geocoder failed due to: " + status); //TODO also handle this later
-            }
-          }
-        ); //End geocode for the very first time
-
-        this.pin_src = position;
-
-        let map = new google.maps.Map(document.getElementById("mapmy"), {
-          zoom: 15,
-
-          center: position,
-
-          styles: styles.silver
-        }); //End Map
-
-        //Source marker
-
-        // var input = document.getElementById('pac-input');
-
-        var autocomplete = new google.maps.places.Autocomplete(
-          document.getElementById("pac-input")
-        );
-
-        autocomplete.addListener("place_changed", () => {
-          let place = autocomplete.getPlace();
-
-         console.log("===============SOURCE=====================");
-
-         console.log(place);
-
-         console.log("====================================");
-
-          self.setPlace(place);
-        });
-
-        var autocomplete2 = new google.maps.places.Autocomplete(
-          document.getElementById("pac-input2")
-        );
-
-        autocomplete2.addListener("place_changed", () => {
-          let place = autocomplete2.getPlace();
-
-        //  console.log("===============SOURCE=====================");
-
-         // console.log(place);
-
-        //  console.log("====================================");
-
-          self.setPlace(place);
-        });
-        
-
-       
-
-        // console.log('=====================My auto Complete===============');
-
-        // console.log(autocomplete);
-
-        // console.log('====================================');
-
-        // autocomplete.bindTo('bounds', map);
-
-        this.mymap = map;
-
-        let myLocmarker = new google.maps.Marker({
-          flat: true,
-
-          icon: {
-            path: google.maps.SymbolPath.CIRCLE,
-
-            scale: 8,
-
-            fillOpacity: 0.8,
-
-            strokeColor: "gold",
-
-            strokeWeight: 5
-          },
-
-          map: this.mymap,
-
-          optimized: false,
-
-          position: position,
-
-          title: "location",
-
-          visible: true
-        }); //end Marker Icon Location Image
-
-        // var Popup = this.createPopUpClass(); //Create the popup class here
-
-        // let popup = new Popup(
-        //   new google.maps.LatLng(position.lat, position.lng),
-
-        //   document.getElementById("loc_pop")
-        // ); //Add a popup for the current location
-
-        // popup.setMap(map); //Add the popup to the map
-
-        // myLocmarker.addListener("click", function() {
-        //   // infowindow.open(map, myLocmarker);
-        // }); //This method is yet to be used, man i have alot on my plate
-
-        let pin = new google.maps.Marker({
-          icon: {
-            path: google.maps.SymbolPath.BACKWARD_CLOSED_ARROW,
-
-            scale: 5,
-
-            fillOpacity: 0.8,
-
-            strokeColor: "gold",
-
-            strokeWeight: 1
-          },
-
-          map: map,
-
-          position: map.getCenter(),
-
-          title: "Pin"
-        });
-
-        map.addListener("dragend", e => {
-          let pos = {
-            lat: map.getCenter().lat(),
-
-            lng: map.getCenter().lng()
-          };
+          // userRef.update({user_details});
 
           geocoder.geocode(
             {
-              location: pos
+              location: position
             },
 
             function(results, status) {
               if (status === "OK") {
                 if (results[0]) {
-                  console.log('================GOECODED MESSAGE====================');
+                  //    console.log('=================MY LOCATION HERE===================');
 
-                  console.log(results[0]);
+                  //    console.log(results[0]);
 
-                  console.log('====================================');
+                  //    console.log('====================================');
 
-                  self.location_details = results[0].formatted_address;
-                  self.menuForm.menuLocation =  results[0].formatted_address;
-                  // self.location_data = results[0];
+                  self.location_details = results[0].formatted_address; //Set the initial location deatils
+
+                  // self.trip.source = results[0].formatted_address;
+                  self.menuForm.menuLocation = results[0].formatted_address;
+
+                  // self.$refs.source.value = results[0].formatted_address;
+
+                  self.setPlace(results[0]);
+
+                  self.place_id = results[0].place_id;
+
+                  self.sourcePoint = {
+                    latitude: results[0].geometry.location.lat(),
+
+                    longitude: results[0].geometry.location.lng()
+                  };
                 } else {
                   window.alert("No results found"); //TODO handle this later on
                 }
@@ -723,38 +556,189 @@ GoogleMapsLoader.load(google => {
                 window.alert("Geocoder failed due to: " + status); //TODO also handle this later
               }
             }
+          ); //End geocode for the very first time
+
+          this.pin_src = position;
+
+          let map = new google.maps.Map(document.getElementById("mapmy"), {
+            zoom: 15,
+
+            center: position,
+
+            styles: styles.silver
+          }); //End Map
+
+          //Source marker
+
+          // var input = document.getElementById('pac-input');
+
+          var autocomplete = new google.maps.places.Autocomplete(
+            document.getElementById("pac-input")
           );
-        });
 
-        map.addListener("drag", function(e) {
-          // this.pin_dest = map.getCenter();
+          autocomplete.addListener("place_changed", () => {
+            let place = autocomplete.getPlace();
 
-          let pos = {
-            lat: map.getCenter().lat(),
+            console.log("===============SOURCE=====================");
 
-            lng: map.getCenter().lng()
-          };
+            console.log(place);
 
-          // console.log('==================fgfgfgfg==================');
+            console.log("====================================");
 
-          // console.log(JSON.stringify(map.getCenter()));
+            self.setPlace(place);
+          });
+
+          var autocomplete2 = new google.maps.places.Autocomplete(
+            document.getElementById("pac-input2")
+          );
+
+          autocomplete2.addListener("place_changed", () => {
+            let place = autocomplete2.getPlace();
+
+            //  console.log("===============SOURCE=====================");
+
+            // console.log(place);
+
+            //  console.log("====================================");
+
+            self.setPlace(place);
+          });
+
+          // console.log('=====================My auto Complete===============');
+
+          // console.log(autocomplete);
 
           // console.log('====================================');
 
-          pin.setPosition(map.getCenter()); //Updates the pin location to the center of map
+          // autocomplete.bindTo('bounds', map);
 
-          // self.pin_dest = pos;
+          this.mymap = map;
 
-          // console.log('====================================');
+          let myLocmarker = new google.maps.Marker({
+            flat: true,
 
-          // console.log(map.getCenter());
+            icon: {
+              path: google.maps.SymbolPath.CIRCLE,
 
-          // console.log(self.pin_dest);
-          // console.log('====================================');
-        }); //End the map listener
-      }); //End getLocation
-    }); //End GooglemapsLoader
+              scale: 8,
 
+              fillOpacity: 0.8,
+
+              strokeColor: "gold",
+
+              strokeWeight: 5
+            },
+
+            map: this.mymap,
+
+            optimized: false,
+
+            position: position,
+
+            title: "location",
+
+            visible: true
+          }); //end Marker Icon Location Image
+
+          // var Popup = this.createPopUpClass(); //Create the popup class here
+
+          // let popup = new Popup(
+          //   new google.maps.LatLng(position.lat, position.lng),
+
+          //   document.getElementById("loc_pop")
+          // ); //Add a popup for the current location
+
+          // popup.setMap(map); //Add the popup to the map
+
+          // myLocmarker.addListener("click", function() {
+          //   // infowindow.open(map, myLocmarker);
+          // }); //This method is yet to be used, man i have alot on my plate
+
+          let pin = new google.maps.Marker({
+            icon: {
+              path: google.maps.SymbolPath.BACKWARD_CLOSED_ARROW,
+
+              scale: 5,
+
+              fillOpacity: 0.8,
+
+              strokeColor: "gold",
+
+              strokeWeight: 1
+            },
+
+            map: map,
+
+            position: map.getCenter(),
+
+            title: "Pin"
+          });
+
+          map.addListener("dragend", e => {
+            let pos = {
+              lat: map.getCenter().lat(),
+
+              lng: map.getCenter().lng()
+            };
+
+            geocoder.geocode(
+              {
+                location: pos
+              },
+
+              function(results, status) {
+                if (status === "OK") {
+                  if (results[0]) {
+                    console.log(
+                      "================GOECODED MESSAGE===================="
+                    );
+
+                    console.log(results[0]);
+
+                    console.log("====================================");
+
+                    self.location_details = results[0].formatted_address;
+                    self.menuForm.menuLocation = results[0].formatted_address;
+                    self.setPlace(results[0]);
+                    // self.location_data = results[0];
+                  } else {
+                    window.alert("No results found"); //TODO handle this later on
+                  }
+                } else {
+                  window.alert("Geocoder failed due to: " + status); //TODO also handle this later
+                }
+              }
+            );
+          });
+
+          map.addListener("drag", function(e) {
+            // this.pin_dest = map.getCenter();
+
+            let pos = {
+              lat: map.getCenter().lat(),
+
+              lng: map.getCenter().lng()
+            };
+
+            // console.log('==================fgfgfgfg==================');
+
+            // console.log(JSON.stringify(map.getCenter()));
+
+            // console.log('====================================');
+
+            pin.setPosition(map.getCenter()); //Updates the pin location to the center of map
+
+            // self.pin_dest = pos;
+
+            // console.log('====================================');
+
+            // console.log(map.getCenter());
+
+            // console.log(self.pin_dest);
+            // console.log('====================================');
+          }); //End the map listener
+        }); //End getLocation
+      }); //End GooglemapsLoader
     },
     handleFilePondInit: function() {
       console.log("FilePond has initialized");
@@ -827,19 +811,22 @@ GoogleMapsLoader.load(google => {
       console.log("Processed logo");
       let cloudinaryResp = JSON.parse(file.serverId);
       console.log(cloudinaryResp);
-      this.menuForm.menuLogoUrl = cloudinaryResp.url
-      this.menuForm.thumb_menuLogoUrl = `https://res.cloudinary.com/micqual/image/upload/w_200,h_200/v${cloudinaryResp.version}/${cloudinaryResp.public_id}.${cloudinaryResp.format}`
-
+      this.menuForm.menuLogoUrl = cloudinaryResp.url;
+      this.menuForm.thumb_menuLogoUrl = `https://res.cloudinary.com/micqual/image/upload/w_200,h_200/v${
+        cloudinaryResp.version
+      }/${cloudinaryResp.public_id}.${cloudinaryResp.format}`;
     },
     handleProcessSuccessCover(error, file) {
       console.log("Processed Cover");
       let cloudinaryResp = JSON.parse(file.serverId);
       console.log(cloudinaryResp);
-      this.menuForm.menuCoverUrl = cloudinaryResp.url
-      this.menuForm.thumb_menuCoverUrl = `https://res.cloudinary.com/micqual/image/upload/w_400,h_300/v${cloudinaryResp.version}/${cloudinaryResp.public_id}.${cloudinaryResp.format}`
-      // 
-    //   
-    //   {public_id: "cvxjosardnmchrzqtaae", version: 1550412059,
+      this.menuForm.menuCoverUrl = cloudinaryResp.url;
+      this.menuForm.thumb_menuCoverUrl = `https://res.cloudinary.com/micqual/image/upload/w_400,h_300/v${
+        cloudinaryResp.version
+      }/${cloudinaryResp.public_id}.${cloudinaryResp.format}`;
+      //
+      //
+      //   {public_id: "cvxjosardnmchrzqtaae", version: 1550412059,
     },
     createPopUpClass() {
       var Popup;
@@ -941,7 +928,7 @@ GoogleMapsLoader.load(google => {
 
       return Popup;
     },
-     setPlace(place) {
+    setPlace(place) {
       // this.trip.source = this.$refs.source.value;
 
       if (this.sourceMarker != null) {
@@ -953,7 +940,7 @@ GoogleMapsLoader.load(google => {
       // console.log(this.$refs.source.value);
 
       // console.log("====================================");
-
+      this.menuForm.menuLocation = place.formatted_address;
       let position = {
         lat: place.geometry.location.lat(),
 
@@ -994,8 +981,8 @@ GoogleMapsLoader.load(google => {
         visible: true
       }); //end Marker Icon Location Image
 
-      if(this.mymap != null){
-      this.mymap.setCenter(position);
+      if (this.mymap != null) {
+        this.mymap.setCenter(position);
       }
 
       this.place_id = place.place_id;
@@ -1005,9 +992,7 @@ GoogleMapsLoader.load(google => {
 
         longitude: place.geometry.location.lng()
       };
-     
-    },
-
+    }
   }
 };
 </script>
@@ -1171,11 +1156,11 @@ GoogleMapsLoader.load(google => {
 }
 
 #location-card {
-      position: absolute;
-     
-    z-index: 1;
-    left: 35%;
-    width: 30%;
+  position: absolute;
+
+  z-index: 1;
+  left: 35%;
+  width: 30%;
 }
 .pin-lock {
   position: absolute;
@@ -1279,11 +1264,11 @@ GoogleMapsLoader.load(google => {
     margin: -10px 0 0 -10px;
   }
   #location-card {
-      position: absolute;
+    position: absolute;
     z-index: 1;
     left: 5%;
     width: 90%;
-}
+  }
 }
 
 .donepicker {

@@ -12,6 +12,9 @@ import 'vuetify/dist/vuetify.min.css'
 import Vuefire from 'vuefire'
 import firebase from './service/firebase'
 import '@fortawesome/fontawesome-free/css/all.css'
+import Clipboard from 'v-clipboard'
+ 
+Vue.use(Clipboard)
 Vue.use(Vuefire)
 Vue.use(Vuetify, {
   iconfont: 'fa',
@@ -29,7 +32,7 @@ Vue.config.productionTip = false
 new Vue({
   el: '#app',
   firebase: {
-    menus: firebase.database.ref('menus').orderByChild('created_at')
+    menus: firebase.database.ref('global_menus').orderByChild('created_at')
   },
   router,
   store,

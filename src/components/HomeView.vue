@@ -1,307 +1,306 @@
 <template>
-    <div>
-       <v-app class="hide-overflow" style="position: relative;">
-    <!-- <v-navigation-drawer app></v-navigation-drawer> -->
-    <v-navigation-drawer v-model="drawer" absolute temporary>
-      <v-list class="pa-1">
-        <v-list-tile avatar>
-          <v-list-tile-avatar>
-            <img src="https://randomuser.me/api/portraits/men/85.jpg">
-          </v-list-tile-avatar>
-
-          <v-list-tile-content>
-            <v-list-tile-title>John Leider</v-list-tile-title>
-          </v-list-tile-content>
-        </v-list-tile>
-      </v-list>
-
-      <v-list class="pt-0" dense>
-        <v-divider></v-divider>
-
-        <v-list-tile v-for="item in items" :key="item.title">
-          <v-list-tile-action>
-            <v-icon>{{ item.icon }}</v-icon>
-          </v-list-tile-action>
-
-          <v-list-tile-content>
-            <v-list-tile-title>{{ item.title }}</v-list-tile-title>
-          </v-list-tile-content>
-        </v-list-tile>
+  <v-app id="inspire">
+    <v-navigation-drawer
+      v-model="drawer"
+      :clipped="$vuetify.breakpoint.lgAndUp"
+      fixed
+      app
+    >
+      <v-list dense>
+        <template v-for="item in items">
+          <v-layout
+            v-if="item.heading"
+            :key="item.heading"
+            row
+            align-center
+          >
+            <v-flex xs6>
+              <v-subheader v-if="item.heading">
+                {{ item.heading }}
+              </v-subheader>
+            </v-flex>
+            <v-flex xs6 class="text-xs-center">
+              <a href="#!" class="body-2 black--text">EDIT</a>
+            </v-flex>
+          </v-layout>
+          <v-list-group
+            v-else-if="item.children"
+            :key="item.text"
+            v-model="item.model"
+            :prepend-icon="item.model ? item.icon : item['icon-alt']"
+            append-icon=""
+          >
+            <template v-slot:activator>
+              <v-list-tile>
+                <v-list-tile-content>
+                  <v-list-tile-title>
+                    {{ item.text }}
+                  </v-list-tile-title>
+                </v-list-tile-content>
+              </v-list-tile>
+            </template>
+            <v-list-tile
+              v-for="(child, i) in item.children"
+              :key="i"
+              @click=""
+            >
+              <v-list-tile-action v-if="child.icon">
+                <v-icon>{{ child.icon }}</v-icon>
+              </v-list-tile-action>
+              <v-list-tile-content>
+                <v-list-tile-title>
+                  {{ child.text }}
+                </v-list-tile-title>
+              </v-list-tile-content>
+            </v-list-tile>
+          </v-list-group>
+          <v-list-tile v-else :key="item.text" @click="">
+            <v-list-tile-action>
+              <v-icon>{{ item.icon }}</v-icon>
+            </v-list-tile-action>
+            <v-list-tile-content>
+              <v-list-tile-title>
+                {{ item.text }}
+              </v-list-tile-title>
+            </v-list-tile-content>
+          </v-list-tile>
+        </template>
       </v-list>
     </v-navigation-drawer>
     <v-toolbar
-      absolute
-      scroll-off-screen
-      scroll-target="#scrolling-techniques"
-      dark
+      :clipped-left="$vuetify.breakpoint.lgAndUp"
       color="primary"
+      dark
+      app
+      fixed
     >
-      <v-toolbar-side-icon @click.stop="drawer = !drawer"></v-toolbar-side-icon>
-
-      <v-toolbar-title>hiMenu</v-toolbar-title>
-      <v-autocomplete
-        slot="extension"
-        v-model="select"
-        :loading="loading"
-        :items="items"
-        :search-input.sync="search"
-        cache-items
-        class="mx-3"
+      <v-toolbar-title style="width: 300px" class="ml-0 pl-3">
+        <v-toolbar-side-icon @click.stop="drawer = !drawer"></v-toolbar-side-icon>
+        <span class="hidden-sm-and-down">HiOffers</span>
+      </v-toolbar-title>
+      <v-text-field
         flat
-        hide-no-data
-        hide-details
-        label="Search a nearby hotel?"
         solo-inverted
-      ></v-autocomplete>
+        hide-details
+        prepend-inner-icon="search"
+        label="Search"
+        class="hidden-sm-and-down"
+      ></v-text-field>
       <v-spacer></v-spacer>
+        <v-menu
+      v-model="menu"
+      :close-on-content-click="false"
+      :nudge-width="200"
+      offset-x
+    >
+      <template v-slot:activator="{ on }">
+        
+         <v-btn icon v-on="on">
+        <v-icon>apps</v-icon>
+      </v-btn>
+      </template>
+
+      <v-card>
+        <v-list>
+          <v-list-tile avatar>
+            <v-list-tile-avatar>
+              <img src="https://cdn.vuetifyjs.com/images/john.jpg" alt="John">
+            </v-list-tile-avatar>
+
+            <v-list-tile-content>
+              <v-list-tile-title>John Leider</v-list-tile-title>
+              <v-list-tile-sub-title>Founder of Vuetify.js</v-list-tile-sub-title>
+            </v-list-tile-content>
+
+            <v-list-tile-action>
+              <v-btn
+                :class="fav ? 'red--text' : ''"
+                icon
+                @click="fav = !fav"
+              >
+                <v-icon>favorite</v-icon>
+              </v-btn>
+            </v-list-tile-action>
+          </v-list-tile>
+        </v-list>
+
+        <v-divider></v-divider>
+            <v-container fluid grid-list-sm>
+                    <v-layout row wrap>
+                        <v-flex v-for="i in 6" :key="i" xs4>
+                        <img :src="`https://randomuser.me/api/portraits/men/${i + 20}.jpg`" class="image" alt="lorem" width="100" height="100">
+                        </v-flex>
+                    </v-layout>
+                    </v-container>
+        
+      </v-card>
+    </v-menu>
+     
       <v-btn icon>
-        <v-icon>more_vert</v-icon>
+        <v-icon>notifications</v-icon>
+      </v-btn>
+      <v-btn icon large>
+        <v-avatar size="32px" tile>
+          <img
+            src="https://cdn.vuetifyjs.com/images/logos/logo.svg"
+            alt="Vuetify"
+          >
+        </v-avatar>
       </v-btn>
     </v-toolbar>
-    <v-card id="scrolling-techniques" class="scroll-y" style="height: 100vh; padding-top: 120px">
-      <v-container style="padding: 0px;" fluid grid-list-lg>
-         <router-view></router-view>
-        <!-- <v-layout>
-          <v-flex xs12 sm6>
-            <v-card>
-              <v-container v-bind="{ [`grid-list-24`]: true }" style=" height: 90vh" fluid>
-                <v-layout row wrap>
-                  <v-flex v-for="n in 9" :key="n" xs4>
-                    <v-hover>
-                      <v-card
-                        flat
-                        tile
-                        style="text-align: center"
-                        slot-scope="{ hover }"
-                        :class="`elevation-${hover ? 12 : 0}`"
-                      >
-                        <v-img
-                          :src="`https://unsplash.it/150/300?image=${Math.floor(Math.random() * 100) + 1}`"
-                          height="150px"
-                        ></v-img>Drinks
-                      </v-card>
-                    </v-hover>
-                  </v-flex>
-                </v-layout>
-              </v-container>
-            </v-card>
-          </v-flex>
-        </v-layout> -->
-      </v-container>
-    </v-card>
-    <!-- <v-toolbar
-    color="primary"
-    dark
-    extended
-  >
-
-    <v-toolbar-title slot="extension" class="white--text">hiMenu</v-toolbar-title>
-
-    <v-spacer></v-spacer>
-  <v-text-field
+    <v-content>
+      <v-container grid-list-md>
+        <v-layout row wrap>
+            <v-flex xs12 sm12 >
+            <p>Customer contact list</p>
+              <v-text-field
+        flat
+        solo-inverted
         hide-details
-        prepend-icon="search"
-        single-line
+        prepend-inner-icon="search"
+        label="Search Customer here"
+        class="hidden-sm-and-down"
       ></v-text-field>
-    <v-btn icon>
-      <v-icon>search</v-icon>
-    </v-btn>
+            <v-btn-toggle>
+              <v-btn value="left" color="primary white--text">
+                Add New Contact
 
-    <v-btn icon>
-      <v-icon>apps</v-icon>
-    </v-btn>
+              </v-btn>
+              <v-btn value="center" color="success white--text">
+                Import from Excel (xls,csv)
 
-    <v-btn icon>
-      <v-icon>refresh</v-icon>
+              </v-btn>
+              
+            </v-btn-toggle>
+          </v-flex>
+             <v-flex xs12 sm12 >
+             </v-flex>
+        </v-layout>
+      </v-container>
+    </v-content>
+    <v-btn
+      fab
+      bottom
+      right
+      color="pink"
+      dark
+      fixed
+      @click="dialog = !dialog"
+    >
+      <v-icon>add</v-icon>
     </v-btn>
-
-    <v-btn icon>
-      <v-icon>more_vert</v-icon>
-    </v-btn>
-    </v-toolbar>-->
+    <v-dialog v-model="dialog" width="800px">
+      <v-card>
+        <v-card-title
+          class="grey lighten-4 py-4 title"
+        >
+          Create contact
+        </v-card-title>
+        <v-container grid-list-sm class="pa-4">
+          <v-layout row wrap>
+            <v-flex xs12 align-center justify-space-between>
+              <v-layout align-center>
+                <v-avatar size="40px" class="mr-3">
+                  <img
+                    src="//ssl.gstatic.com/s2/oz/images/sge/grey_silhouette.png"
+                    alt=""
+                  >
+                </v-avatar>
+                <v-text-field
+                  placeholder="Name"
+                ></v-text-field>
+              </v-layout>
+            </v-flex>
+            <v-flex xs6>
+              <v-text-field
+                prepend-icon="business"
+                placeholder="Company"
+              ></v-text-field>
+            </v-flex>
+            <v-flex xs6>
+              <v-text-field
+                placeholder="Job title"
+              ></v-text-field>
+            </v-flex>
+            <v-flex xs12>
+              <v-text-field
+                prepend-icon="mail"
+                placeholder="Email"
+              ></v-text-field>
+            </v-flex>
+            <v-flex xs12>
+              <v-text-field
+                type="tel"
+                prepend-icon="phone"
+                placeholder="(000) 000 - 0000"
+                mask="phone"
+              ></v-text-field>
+            </v-flex>
+            <v-flex xs12>
+              <v-text-field
+                prepend-icon="notes"
+                placeholder="Notes"
+              ></v-text-field>
+            </v-flex>
+          </v-layout>
+        </v-container>
+        <v-card-actions>
+          <v-btn flat color="primary">More</v-btn>
+          <v-spacer></v-spacer>
+          <v-btn flat color="primary" @click="dialog = false">Cancel</v-btn>
+          <v-btn flat @click="dialog = false">Save</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
   </v-app>
-    </div>
 </template>
 
 <script>
-export default {
- data() {
-    return {
+
+
+  export default {
+      components: {
+      },
+    data: () => ({
+      dialog: false,
       drawer: null,
+      fav: true,
+      menu: false,
+      message: false,
+      hints: true,
       items: [
-        { title: "Home", icon: "dashboard" },
-        { title: "About", icon: "question_answer" }
-      ],
-      mini: false,
-      right: null,
-      loading: false,
-      items: [],
-      search: null,
-      select: null,
-      states: [
-        "Alabama",
-        "Alaska",
-        "American Samoa",
-        "Arizona",
-        "Arkansas",
-        "California",
-        "Colorado",
-        "Connecticut",
-        "Delaware",
-        "District of Columbia",
-        "Federated States of Micronesia",
-        "Florida",
-        "Georgia",
-        "Guam",
-        "Hawaii",
-        "Idaho",
-        "Illinois",
-        "Indiana",
-        "Iowa",
-        "Kansas",
-        "Kentucky",
-        "Louisiana",
-        "Maine",
-        "Marshall Islands",
-        "Maryland",
-        "Massachusetts",
-        "Michigan",
-        "Minnesota",
-        "Mississippi",
-        "Missouri",
-        "Montana",
-        "Nebraska",
-        "Nevada",
-        "New Hampshire",
-        "New Jersey",
-        "New Mexico",
-        "New York",
-        "North Carolina",
-        "North Dakota",
-        "Northern Mariana Islands",
-        "Ohio",
-        "Oklahoma",
-        "Oregon",
-        "Palau",
-        "Pennsylvania",
-        "Puerto Rico",
-        "Rhode Island",
-        "South Carolina",
-        "South Dakota",
-        "Tennessee",
-        "Texas",
-        "Utah",
-        "Vermont",
-        "Virgin Island",
-        "Virginia",
-        "Washington",
-        "West Virginia",
-        "Wisconsin",
-        "Wyoming"
-      ],
-      alignmentsAvailable: [
-        "align-center",
-        "align-end",
-        "align-space-around",
-        "align-space-between",
-        "align-start",
-        ""
-      ],
-      alignment: "align-center",
-      alignmentsContentAvailable: [
-        "align-content-center",
-        "align-content-end",
-        "align-content-space-around",
-        "align-content-space-between",
-        "align-content-start",
-        ""
-      ],
-      justifyAvailable: [
-        "justify-center",
-        "justify-end",
-        "justify-space-around",
-        "justify-space-between",
-        "justify-start",
-        ""
-      ],
-      justify: "justify-center",
-      reverse: false,
-      flexDirectionAvailable: ["row", "column", ""],
-      flexDirection: "row",
-      fillHeight: true
-    };
-  },
-  watch: {
-    search(val) {
-      val && val !== this.select && this.querySelections(val);
-    }
-  },
-  computed: {
-    layoutAttributes() {
-      return {
-        [this.alignment]: true,
-        [this.justify]: true,
-        [this.flexDirection]: true,
-        reverse: this.reverse,
-        "fill-height": this.fillHeight
-      };
-    }
-  },
-  methods: {
-    querySelections(v) {
-      this.loading = true;
-      // Simulated ajax query
-      setTimeout(() => {
-        this.items = this.states.filter(e => {
-          return (e || "").toLowerCase().indexOf((v || "").toLowerCase()) > -1;
-        });
-        this.loading = false;
-      }, 500);
+        { icon: 'contacts', text: 'Dashboard' },
+        { icon: 'contacts', text: 'Contacts' },
+        {
+          icon: 'keyboard_arrow_up',
+          'icon-alt': 'keyboard_arrow_down',
+          text: 'SMS',
+          model: true,
+          children: [
+            { icon: 'add', text: 'Inbox' },
+            { icon: 'add', text: 'Bulk SMS' },
+            { icon: 'add', text: 'Analytics' },
+          ]
+        },
+        {
+          icon: 'keyboard_arrow_up',
+          'icon-alt': 'keyboard_arrow_down',
+          text: 'Offers',
+          model: false,
+          children: [
+            { icon: 'add', text: 'My Offers' },
+            { icon: 'add', text: 'Analytics' },
+          ]
+        },
+        { icon: 'settings', text: 'Payments' },
+
+        { icon: 'settings', text: 'Settings' },
+        { icon: 'chat_bubble', text: 'Send feedback' },
+        { icon: 'help', text: 'Help' },
+      ]
+    }),
+    props: {
+      source: String
     }
   }
-}
 </script>
-
-<style>
-body {
-  margin: 0;
-}
-
-#app {
-  font-family: "Avenir", Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  color: #2c3e50;
-}
-
-main {
-  text-align: center;
-  margin-top: 40px;
-}
-
-header {
-  margin: 0;
-  height: 56px;
-  padding: 0 16px 0 24px;
-  background-color: #ffbe55;
-  color: #ffffff;
-}
-
-header span {
-  display: block;
-  position: relative;
-  font-size: 20px;
-  line-height: 1;
-  letter-spacing: 0.02em;
-  font-weight: 400;
-  box-sizing: border-box;
-  padding-top: 16px;
-}
-
-
-.item {
-  /* min-height: 50px; */
-  min-width: 80px;
-  margin: 1px;
-}
-</style>

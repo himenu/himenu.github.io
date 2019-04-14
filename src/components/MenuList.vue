@@ -1,11 +1,11 @@
 <template>
 <v-layout row style="background: #fff">
-    <v-flex xs12 sm8 offset-sm2>
+    <v-flex xs12 sm12 >
       <v-card :raised="false" style="box-shadow: none; border-radius: 0px; height: 100%; padding: 30px">
         
 <v-layout row wrap>
        <v-flex xs12 sm12 md12  style="padding:0 10px;"> 
-         <v-subheader class="headline">All Menus</v-subheader>
+         <v-subheader class="headline">My Menus</v-subheader>
 
                </v-flex>
                <v-flex xs12 sm12 md12  style="padding:0 10px;"> 
@@ -16,6 +16,7 @@
           Search a <strong>himenu</strong> here, use <strong>Code</strong> or <strong>Name</strong> of hotel? <v-icon style="vertical-align: middle">find_in_page</v-icon>
         </template>
       </v-text-field>
+      <input type="hidden" id="testing-code" v-show="false" :value="testingCode">
     </v-container>
   </v-form>
                </v-flex>
@@ -43,6 +44,7 @@
         :aspect-ratio="16/9"
         :src="menu.coverPhoto" :lazy-src="`https://picsum.photos/10/6?image=${1 * 5 + 10}`"
       >
+      
       <v-expand-transition>
           <div
             v-if="hover"
@@ -65,45 +67,81 @@
           top
           style="margin-top: 45%; box-shadow: none"
         >
-             
               <img
               style="width: 74px"
                :src="menu.thumb_logo" :lazy-src="`https://picsum.photos/10/6?image=${1 * 5 + 10}`"
                 alt="Avatar"
               >
         </v-btn>
+            <v-btn
+          absolute
+          color="pink"
+          class="white--text"
+          fab
+          large
+          right
+          top
+          style="margin-top: 10%;"
+          @click="copyLink(menu)"
+        >
+            <v-icon>link</v-icon>
+        </v-btn>
         <div style="max-width: 80%">
-            
-          <span style="    font-size: 17px;
-    line-height: 32px;
-    font-weight: bold;">{{ menu.name }}</span>
-          <div class="d-flex">
-<!-- 
+          <span style="    
+                font-size: 17px;
+                line-height: 32px;
+                font-weight: bold;">
+                {{ menu.name }}
+                </span>
+            <div class="d-flex">
             <v-rating
-              :value="4.5"
+              :value="menu.rating ? menu.rating : 1"
               color="amber"
               dense
               half-increments
               readonly
               size="14"
-            ></v-rating> -->
+            ></v-rating>
+            <div class="ml-2 grey--text text--darken-2">
+              <span>
+                {{ menu.rating ? menu.rating : 1 }}
+                </span>
+              <span>
+                 ({{ menu.reviews ? menu.reviews : 1 }} reviews) 
+                 </span>
+            </div>
+          </div>
+          <div class="d-flex">
+        
             <div class="ml-2 grey--text text--darken-2">
               <span v-if="menu.hasOwnProperty('categories')" v-text="compileJson(menu.categories)"></span>
             </div>
           </div>
-        
         </div>
+
         <v-spacer></v-spacer>
         <v-btn icon class="mr-0" @click="displayCategories(menu['.key'])">
-            <v-icon color="grey lighten-1">chevron_right</v-icon>
+            <v-icon color="grey lighten-1">
+              chevron_right
+              </v-icon>
         </v-btn>
       </v-card-title>
       
     </v-card>
   </v-hover>
             </v-flex>
-
-          
+            <v-snackbar
+              v-model="openSnack"
+              :color="snackbarColor"
+              multi-line="multi-line"
+              :timeout="6000"
+              :vertical="'vertical'"
+            >
+            {{snackbarMsg}}
+            <v-btn dark flat @click="openSnack = false">
+              Close
+            </v-btn>
+          </v-snackbar>
 </v-layout>
  <v-btn
               absolute
@@ -120,6 +158,7 @@
 </v-card>
     </v-flex>
   </v-layout>
+
      <!-- <v-layout row>
     <v-flex xs12 sm6 offset-sm3>
       <v-card :raised="false" style="box-shadow: none; border-radius: 20px; height: 88vh; padding: 15px">
@@ -182,7 +221,7 @@
 import _ from 'lodash'
  import firebase from 'firebase';
  import { VclTwitch } from 'vue-content-loading';
-
+const axios = require('axios');
 import { find } from 'lodash'
 import { mapGetters } from 'vuex'
 import { mapState } from 'vuex'
@@ -204,8 +243,13 @@ export default {
       return {
         uid: '',
         search: '',
+        testingCode: "1234",
         searching: true,
         allMenus: [],
+         select: null,
+      snackbarColor: "error",
+      snackbarMsg: "",
+      openSnack: false,
         items: [
           { icon: 'folder', iconClass: 'grey lighten-1 white--text', title: 'Photos', subtitle: 'Jan 9, 2014' },
           { icon: 'folder', iconClass: 'grey lighten-1 white--text', title: 'Recipes', subtitle: 'Jan 17, 2014' },
@@ -226,19 +270,16 @@ export default {
        setTimeout(()=> {
          this.searching = true
        }, 200)
+
       //  if (navigator.onLine) {
       //     this.saveMenusToCache()
       //   } else {
       //     menus = JSON.parse(localStorage.getItem('menus'))
       //   }
-      
       // let filteredMenu = this.allMenus.filter(menu => {
-      //   // console.log(menu.uid  );
-      //   // console.log(user);
-        
-
-      //   // return true
-        
+      // console.log(menu.uid  );
+      // console.log(user);
+      // return true
       //   if (menu.hasOwnProperty('uid')) {
       //     // return (menu.uid === user.uid)
       //     return menu.name.toLowerCase().includes(this.search.toLowerCase())
@@ -247,9 +288,11 @@ export default {
       //   }
       // })
       // return this.$root.menus
+
       return _.filter(this.$root.menus, function(menu) {
         return menu.name.toLowerCase().includes(vm.search.toLowerCase()) && (menu.uid === user.uid)
       });
+
     }
 
     
@@ -272,6 +315,45 @@ export default {
           })
           localStorage.setItem('menus', JSON.stringify(cachedMenus))
         })
+      },
+      copyLink(menu){
+        let that = this
+
+        let categories = this.compileJson(menu.categories)
+
+        console.log(menu);
+        
+       
+          /* unselect the range */
+         axios 
+         .post("https://api.rebrandly.com/v1/links", {
+           destination: encodeURI('https://sayhimenu.com?code='+menu.code+'&name='+menu.name+'&description='+categories+'&logo='+menu.thumb_logo),
+            domain: { fullName: "rebrand.ly" },
+            
+                },{ headers: {
+              "Content-Type": "application/json",
+              "apikey": "f71342f97c2f4d9fbcbeef78a4a282de"
+            }
+                } 
+            )
+                .then(response => {
+                  console.log(response);
+                    that.$clipboard("https://"+response.data.shortUrl);
+
+
+                    that.snackbarMsg = "https://"+response.data.shortUrl + " Copied to clipboard";
+                    that.snackbarColor = "info"
+                    that.openSnack = true;
+
+
+                  
+                })
+                .catch(error => {
+                  console.log(error);
+                  that.snackbarMsg = "Could not copy to clipboard!";
+                    that.snackbarColor = "error"
+                    that.openSnack = true;
+                })
       },
       compileJson(categories){
         let category = ""
