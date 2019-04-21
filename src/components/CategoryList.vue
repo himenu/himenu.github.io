@@ -1,54 +1,28 @@
 <template>
+
+<v-container>
+   <!-- <v-parallax
+      height="140"
+      src="https://cdn.vuetifyjs.com/images/parallax/material2.jpg"
+ 
+    >
+   
+    </v-parallax> -->
+      <v-toolbar absolute scroll-off-screen scroll-target="#scrolling-techniques">
+      <v-btn icon flat @click="$router.go(-1)">
+        <v-icon>arrow_back</v-icon>
+      </v-btn>
+
+      <!-- <v-btn icon flat @click="$router.go(-1)">
+          <v-icon>arrow_back</v-icon>
+      </v-btn>-->
+      <v-toolbar-title>Category List</v-toolbar-title>
+      <v-spacer></v-spacer>
+     
+    </v-toolbar>
   <v-layout row style="">
     <v-flex xs12 sm12>
-      <v-card style="box-shadow: none;">
-        <v-img
-          v-if="menu"
-          :src="menu.coverPhoto"
-          :lazy-src="`https://picsum.photos/10/6?image=${1 * 5 + 10}`"
-          height="300px"
-        >
-          <v-layout slot="placeholder" fill-height align-center justify-center ma-0>
-            <v-progress-circular indeterminate color="grey lighten-5"></v-progress-circular>
-          </v-layout>
-          <v-layout column fill-height>
-            <v-card-title>
-              <v-btn dark fab color="primary" @click="$router.push('/list')">
-                <v-icon dark>chevron_left</v-icon>
-              </v-btn>
-
-              <v-spacer></v-spacer>
-
-              <v-btn
-                fab
-                dark
-                color="pink"
-                icon
-                class="mr-3"
-                @click="$router.push('/view/'+$route.params.menu_id)"
-              >
-                <v-icon>edit</v-icon>
-              </v-btn>
-
-              <v-btn color="orange" dark @click="downloadQR(menu.QRcode)">
-                <v-icon dark>backup</v-icon>Download QRcode
-              </v-btn>
-            </v-card-title>
-
-            <v-spacer></v-spacer>
-
-            <v-card-title
-              primary-title
-              style="background: rgba(0, 0, 0, 0.6); padding: 25px; line-height: 3"
-            >
-              <div>
-                <div class="title white--text">{{ menu.name }}</div>
-                <span class="white--text">{{ menu.slogan }}</span>
-              </div>
-            </v-card-title>
-          </v-layout>
-        </v-img>
-        <v-card :raised="false" style="box-shadow: none; border-radius: 0px; padding: 0px">
+     <v-card :raised="false" style="box-shadow: none; border-radius: 0px;padding-top: 5vh">
           <v-tabs centered dark color="orange" icons-and-text>
             <v-tab href="#tab-1">
               All Categories
@@ -73,7 +47,7 @@
                   </v-flex>
                   <div v-for="category in categories" :key="category.name">
                     <v-list-tile
-                      @click="$router.push(category.name)"
+                      @click="$router.push('category/'+category.name)"
                       v-if="category.hasOwnProperty('name')"
                       avatar
                       v-ripple
@@ -176,11 +150,9 @@
               </v-card>
             </v-tab-item>
           </v-tabs>
-
           <v-dialog v-model="Offerdialog" width="500">
             <v-card>
               <v-card-title class="headline orange lighten-2" primary-title>New Offer</v-card-title>
-
               <v-card-text>
                 <v-form ref="offerform" v-model="offervalid" lazy-validation>
                   <v-layout row wrap style="padding: 0px">
@@ -288,9 +260,11 @@
             </v-card>
           </v-dialog>
         </v-card>
-      </v-card>
+     
     </v-flex>
   </v-layout>
+</v-container>
+
 </template>
 
 <script>

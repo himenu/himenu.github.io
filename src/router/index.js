@@ -21,48 +21,15 @@ import Code from  '@/components/Code'
 import Dashboard from  '@/components/Dashboard'
 import BulkSMS from  '@/components/BulkSMS'
 import UpdateMenu from  '@/components/UpdateMenu'
+import ContactList from  '@/components/ContactList'
+import BulkHome from  '@/components/BulkHome'
 Vue.use(Router)
 
 const router =  new Router({
   // mode: 'history',
   routes: [
     
-    {
-      path: '/menu/:menu_id',
-      name: 'menu',
-      component: MenuHome,
-      redirect: 'menu/:menu_id/categories',
-      children: [
-        {
-          path: 'categories',
-          name: 'categories',
-          component: CategoryList,
-        },
-        {
-            path: ':cat_id',
-            name: 'categoryhome',
-            component: CategoryHome,
-            redirect: ':cat_id/list',
-            children:[
-              {
-                path: 'newitem',
-                name: 'newitem',
-                component: NewMenuitem
-              },
-              {
-                path: 'view/:item_id',
-                name: 'item',
-                component: ItemHome
-              },
-              {
-                path: 'list',
-                name: 'itemlist',
-                component: MenuItems
-              },
-            ]
-        },
-      ]
-    },
+    
     {
       path: '/login',
       component: Login,
@@ -90,33 +57,83 @@ const router =  new Router({
       path: '/',
       name: 'menus',
       component: Menus,
-      redirect: 'list',
+      redirect: 'all',
       children: [
-        
         {
           path: 'newmenu',
           name: 'newmenu',
           component: NewMenu
         },
         {
-          path: 'view/:id',
-          name: 'update',
-          component: UpdateMenu
-        },
-        {
-          path: 'home',
-          name: 'dashboard',
-          component: Dashboard
-        },
-        {
-          path: 'bulksms',
-          name: 'bulksms',
-          component: BulkSMS
-        },
-        {
-          path: 'list',
+          path: 'all',
           name: 'menulist',
           component: MenuList
+        },
+
+        {
+          path: 'menu/:menu_id',
+          name: 'menu',
+          component: MenuHome,
+          redirect: 'menu/:menu_id/dashboard',
+          children: [
+            {
+              path: 'categories',
+              name: 'categories',
+              component: CategoryList,
+            },
+            {
+                path: 'category/:cat_id',
+                name: 'categoryhome',
+                component: CategoryHome,
+                redirect: 'category/:cat_id/list',
+                children:[
+                  {
+                    path: 'newitem',
+                    name: 'newitem',
+                    component: NewMenuitem
+                  },
+                  {
+                    path: 'view/:item_id',
+                    name: 'item',
+                    component: ItemHome
+                  },
+                  {
+                    path: 'list',
+                    name: 'itemlist',
+                    component: MenuItems
+                  },
+                ]
+            },
+            {
+              path: 'update',
+              name: 'update',
+              component: UpdateMenu
+            },
+            {
+              path: 'dashboard',
+              name: 'dashboard',
+              component: Dashboard
+            },
+            {
+              path: 'bulk',
+              name: 'bulk',
+              component: BulkHome,
+              redirect: 'bulk/sms',
+              children: [
+                {
+                  path: 'sms',
+                  name: 'sms',
+                  component: BulkSMS
+                },
+                
+              ]
+            },
+            {
+              path: 'contacts',
+              name: 'contacts',
+              component: ContactList
+            },
+          ]
         },
       ]
     },

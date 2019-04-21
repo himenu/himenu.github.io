@@ -41,7 +41,7 @@
   <vcl-facebook secondary="#FFC107" primary="#fb8c00"></vcl-facebook>
                </v-flex>
           <v-flex xs12 v-for="(item, key) in items" :key="item.name" style="" >
-            <v-card v-if="item.hasOwnProperty('name')" @click="$router.push('/menu/'+$route.params.menu_id+'/'+$route.params.cat_id+'/view/'+key)" v-ripple style="box-shadow: none; border-radius: 10px; margin-top: 5px; padding: 15px">
+            <v-card v-if="item.hasOwnProperty('name')" @click="$router.push('/menu/'+$route.params.menu_id+'/category/'+$route.params.cat_id+'/view/'+key)" v-ripple style="box-shadow: none; border-radius: 10px; margin-top: 5px; padding: 15px">
               <v-layout >
                 <v-flex xs3>
                   <v-img

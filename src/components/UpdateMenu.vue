@@ -324,7 +324,7 @@ export default {
   },
   mounted(){
    
-    let menu = firebase.database.ref('global_menus/' + this.$route.params.id)
+    let menu = firebase.database.ref('global_menus/' + this.$route.params.menu_id)
      
       let vm = this
       menu.on("value", function(snapshot, prevChildKey) {

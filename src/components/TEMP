@@ -1,0 +1,254 @@
+<template>
+  <v-app class="hide-overflow white-bg" style="position: relative;">
+    <v-toolbar
+      absolute
+      scroll-off-screen
+      scroll-target="#scrolling-techniques"
+      dark
+      color="primary"
+    >
+      <v-btn icon flat @click="$router.go(-1)">
+        <v-icon>arrow_back</v-icon>
+      </v-btn>
+
+      <!-- <v-btn icon flat @click="$router.go(-1)">
+          <v-icon>arrow_back</v-icon>
+      </v-btn>-->
+      <v-toolbar-title>Send Bulk SMS</v-toolbar-title>
+      <v-spacer></v-spacer>
+      <v-btn color="success" class="white--text">
+        <v-icon left dark>money</v-icon>Balance: KES 200.00
+      </v-btn>
+    </v-toolbar>
+    <v-card
+      id="scrolling-techniques"
+      class="scroll-y"
+      style="height: 100vh;box-shadow: none; padding-top: 8vh"
+    >
+      <v-container style="padding: 0px;" fluid grid-list-lg>
+        <v-layout row>
+          <v-flex xs12 sm12 md12>
+            <v-flex xs12 sm12 md4>
+              <v-autocomplete
+                v-model="select"
+                :loading="loading"
+                :items="menus"
+                :search-input.sync="search"
+                cache-items
+                class="mx-2"
+                flat
+                hide-no-data
+                item-text="name"
+                item-value="code"
+                hide-details
+                label="Select Menu Here?"
+                box
+              >
+                <template v-slot:item="data">
+                  <template>
+                    <v-list-tile-avatar>
+                      <img :src="data.item.thumb_logo">
+                    </v-list-tile-avatar>
+                    <v-list-tile-content>
+                      <v-list-tile-title v-html="data.item.name"></v-list-tile-title>
+                      <v-list-tile-sub-title v-html="data.item.code"></v-list-tile-sub-title>
+                    </v-list-tile-content>
+                  </template>
+                </template>
+              </v-autocomplete>
+            </v-flex>
+            <div></div>
+            <v-flex xs12 v-if="select != null" style="background: #f2f2f2; padding: 10px">
+              <p>Send Text message to contact list</p>
+              <v-form ref="messageForm" v-model="valid" lazy-validation>
+                <v-textarea
+                  solo
+                  v-model="text"
+                  name="input-7-4"
+                  label="Enter Message"
+                  counter="100"
+                  :rules="nameRules"
+                  placeholder="Enter message here..."
+                ></v-textarea>
+                <v-btn color="primary white--text" @click="validate">Send message</v-btn>
+              </v-form>
+              <v-subheader>Messages Sent</v-subheader>
+              <v-btn color="primary white--text" @click="$router.push('menu')">View contact list</v-btn>
+              <message-list :contacts="messages"></message-list>
+            </v-flex>
+            <v-flex v-else xs12 style="background: #f2f2f2; padding: 10px">
+              <p>Please select a menu to continue</p>
+            </v-flex>
+          </v-flex>
+        </v-layout>
+      </v-container>
+    </v-card>
+  </v-app>
+
+  <!-- <v-container grid-list-md>
+    <v-toolbar style="box-shadow: none">
+      <v-autocomplete
+        v-model="select"
+        :loading="loading"
+        :items="menus"
+        :search-input.sync="search"
+        cache-items
+        class="mx-3"
+        flat
+        hide-no-data
+        item-text="name"
+        item-value="code"
+        hide-details
+        label="Select Menu Here?"
+        solo
+      ></v-autocomplete>
+
+      <v-spacer></v-spacer>
+     
+    </v-toolbar>
+    <v-layout row wrap style="padding: 20px; background: #fff">
+   
+      
+    </v-layout>
+  </v-container>-->
+</template>
+
+<script>
+import MessageTable from "./MessageTable.vue";
+import firebase from "firebase";
+import axios from 'axios'
+export default {
+  components: {
+    "message-list": MessageTable
+  },
+  computed: {
+    filteredList() {
+      let vm = this;
+      let user = firebase.auth().currentUser;
+
+      return _.filter(this.$root.menus, function(menu) {
+        return menu.uid === user.uid;
+      });
+    }
+  },
+  watch: {
+    search(val) {
+      val && val !== this.select && this.querySelections(val);
+    },
+    select(val) {
+      console.log("==========HERE YADA YDA===============");
+
+      console.log(val);
+    }
+  },
+  data: () => ({
+    select: null,
+    search: null,
+    menus: [],
+    valid: true,
+    text: "",
+    contacts: ["+253713591452"],
+    nameRules: [
+      v => !!v || "Name is required"
+      // v => (v && v.length <= 10) || 'Name must be less than 10 characters'
+    ],
+    messages: [
+      {
+        id: "1",
+        date: "today",
+        msg: "Hello",
+        status: "success"
+      }
+    ],
+    loading: false,
+    items: ["All", "Family", "Friends", "Coworkers"]
+  }),
+  methods: {
+    validate() {
+      console.log(this.text);
+
+      if (this.$refs.messageForm.validate()) {
+        console.log("Send the message here");
+        this.sendSMS("","","","");
+      }
+    },
+    sendSMS(message, apikey, username, contacts) {
+      // Initialize a service e.g. SMS
+      // menus = JSON.parse(localStorage.getItem('menus'))
+      //  localStorage.setItem('menus', JSON.stringify(cachedMenus))
+
+      //   const auth = {
+      //     headers: {
+      //       "Accept": "application/json"
+      //     },
+      //   };
+        let data_json = {
+        grant_type: "client_credentials",
+        client_id: 3,
+        client_secret: "3TRw6P5JsvXKyPtFW9joETguqZddRiVn0ANOaWRa",
+        scope: "*",
+        username: "mike@mail.com",
+        password: "password"
+      };
+
+      axios({
+        method: "post",
+        url: "https://api.sayhimenu.com/api/v1/oauth/token",
+        withCredentials: true,
+        crossdomain: true,
+        data: data_json,
+        headers: {
+          "Access-Control-Allow-Origin": "*"
+        }
+      })
+        .then(function(response) {
+          localStorage.setItem('bearer_token', response.data.access_token)
+          // console.log(response);
+        })
+        .catch(function(error) {
+          console.log("Post Error : " + error);
+        });
+      // let data_json = {
+      //   username: "michaelngugin",
+      //   apikey:
+      //     "084fd00d9e4d867100870c0957fc49da18c6d15edc6ce94b536ba1e67bb2dfc3",
+      //   numbers: "+254713591452,+254716467318",
+      //   message: "Say hi to your new menu! Welcome aboard https://sayhimenu.com"
+      // };
+      
+      // axios({
+      //   method: "post",
+      //   url: "https://api.sayhimenu.com/api/v1/sms",
+      //   withCredentials: true,
+      //   crossdomain: true,
+      //   data: data_json,
+      //   headers: {
+      //     "Access-Control-Allow-Origin": "*",
+      //     "Authorization": "Bearer " + localStorage.getItem("bearer_token")
+      //   }
+      // })
+      //   .then(function(response) {
+      //     console.log("Header With Authentication :" + response);
+      //   })
+      //   .catch(function(error) {
+      //     console.log("Post Error : " + error);
+      //   });
+    },
+    querySelections(v) {
+      this.loading = true;
+      // Simulated ajax query
+      // setTimeout(() => {
+      this.menus = this.filteredList.filter(e => {
+        return (
+          (e.name || "").toLowerCase().indexOf((v || "").toLowerCase()) > -1
+        );
+      });
+      this.loading = false;
+      // }, 500)
+    }
+  }
+};
+</script>
+
+<style>
+</style>

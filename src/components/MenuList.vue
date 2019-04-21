@@ -1,4 +1,53 @@
 <template>
+ <v-app>
+  
+    <v-toolbar v-if="currentUser" :clipped-left="$vuetify.breakpoint.lgAndUp" color="primary" dark app fixed style="box-shadow: none">
+      <v-toolbar-title style="width: 300px" class="ml-0 pl-3">
+         <v-btn icon large>
+        <v-avatar size="32px" tile>
+          <img src="./logo.png" alt="HiMenu">
+        </v-avatar>
+      </v-btn>
+        <span class="hidden-sm-and-down">HiMenu</span>
+      </v-toolbar-title>
+      <v-spacer></v-spacer>
+      <v-menu v-model="menu" :close-on-content-click="false" :nudge-width="200" offset-y>
+        <v-list class="pa-1" style="background: transparent" slot="activator">
+          <v-list-tile avatar>
+            <v-list-tile-avatar>
+              <img :src="currentUser.photoURL">
+            </v-list-tile-avatar>
+          </v-list-tile>
+        </v-list>
+
+        <v-card>
+          <v-list class="pa-1">
+            <v-list-tile avatar>
+              <v-list-tile-avatar>
+                <img :src="currentUser.photoURL">
+              </v-list-tile-avatar>
+
+              <v-list-tile-content>
+                <v-list-tile-title>{{ currentUser.displayName}}</v-list-tile-title>
+              </v-list-tile-content>
+            </v-list-tile>
+          </v-list>
+        </v-card>
+      </v-menu>
+      <!-- <v-btn icon>
+        <v-icon>notifications</v-icon>
+      </v-btn>-->
+      <!-- @click="SignOut" -->
+      <v-btn icon>
+        <v-icon>exit_to_app</v-icon>
+      </v-btn>
+
+     
+    </v-toolbar>
+    <v-content style="padding: 0px; background: #fff">
+      <v-container grid-list-md style="padding-top: 10vh; background: #fff">
+        <v-layout row wrap>
+          <v-flex xs12 sm12>
 <v-layout row style="background: #fff">
     <v-flex xs12 sm12 >
       <v-card :raised="false" style="box-shadow: none; border-radius: 0px; height: 100%; padding: 30px">
@@ -73,7 +122,7 @@
                 alt="Avatar"
               >
         </v-btn>
-            <v-btn
+            <!-- <v-btn
           absolute
           color="pink"
           class="white--text"
@@ -85,7 +134,7 @@
           @click="copyLink(menu)"
         >
             <v-icon>link</v-icon>
-        </v-btn>
+        </v-btn> -->
         <div style="max-width: 80%">
           <span style="    
                 font-size: 17px;
@@ -143,20 +192,34 @@
             </v-btn>
           </v-snackbar>
 </v-layout>
- <v-btn
-              absolute
+ <!-- <v-btn
               dark
               fab
               top
               right
-              color="pink"
-              style="margin-top: 20px"
-              @click="$router.push('newmenu')"
+              fixed
+              bottom
+              color="primary"
+              style="bottom: 20px"
             >
-              <v-icon>add</v-icon>
-            </v-btn>
+              <v-icon>link</v-icon>
+            </v-btn> -->
 </v-card>
     </v-flex>
+    <v-fab-transition>
+      <v-btn
+        dark
+        fab
+        fixed
+        bottom
+        color="pink"
+        right
+        @click="$router.push('newmenu')"
+
+      >
+        <v-icon>add</v-icon>
+      </v-btn>
+    </v-fab-transition>
   </v-layout>
 
      <!-- <v-layout row>
@@ -215,6 +278,11 @@
       </v-card>
     </v-flex>
   </v-layout> -->
+  </v-flex>
+        </v-layout>
+      </v-container>
+    </v-content>
+  </v-app>
 </template>
 
 <script>
@@ -234,7 +302,6 @@ export default {
 
     computed: {
    ...mapGetters([
-           'Load_currentUser'
       // ...
          ]),
 
@@ -246,7 +313,13 @@ export default {
         testingCode: "1234",
         searching: true,
         allMenus: [],
+        currentUser: null,
          select: null,
+         dialog: false,
+        fav: true,
+        menu: false,
+        message: false,
+        hints: true,
       snackbarColor: "error",
       snackbarMsg: "",
       openSnack: false,
@@ -261,11 +334,16 @@ export default {
         ]
       }
     },
-   
+    props: {
+    source: String
+  },
+  mounted(){
+  },
     computed: {
      filteredList() {
        let vm = this
        let user = firebase.auth().currentUser;
+       this.currentUser = user
        this.searching = false
        setTimeout(()=> {
          this.searching = true
@@ -302,8 +380,24 @@ export default {
     //  this.allMenus = 
     },
     methods: {
+       SignOut() {
+      let vm = this;
+      firebase
+        .auth()
+        .signOut()
+        .then(
+          function() {
+            // Sign-out successful.
+            vm.$router.replace("/login");
+          },
+          function(error) {
+            // An error happened.
+            alert("Oops, error! try again");
+          }
+        );
+    },
       displayCategories(key){
-        this.$router.push('/menu/'+key+'/categories')
+        this.$router.push('/menu/'+key+'/dashboard')
       },
       saveMenusToCache () {
         this.$root.$firebaseRefs.menus.orderByChild('created_at').once('value', (snap) => {
